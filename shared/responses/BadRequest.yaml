@@ -1,0 +1,14 @@
+description: Bad request - Invalid input parameters
+content:
+  application/json:
+    schema:
+      $ref: '../schemas/ErrorsResponse.yaml'
+    example:
+      status:
+        code: 400
+        message: "Bad Request"
+      errors:
+        - field: "email"
+          message: "Invalid email format"
+        - field: "age"
+          message: "Must be a positive integer"

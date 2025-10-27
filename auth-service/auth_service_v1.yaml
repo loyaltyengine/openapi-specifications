@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  title: Auth API
+  version: 1.0.0
+  description: |
+    Awoolla Auth API
+  contact:
+    name: Awoolla Support
+    url: https://www.awoolla.com/support
+    email: support@awoolla.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://api.awoolla.com
+    description: Live server
+  - url: https://staging-api.awoolla.com
+    description: Staging server
+
+paths:
+  /auth/v1/login/basic:
+    post:
+      summary: User login
+      description: Authenticate a user and return a JWT token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '../shared/responses/BadRequest.yaml'
+        '401':
+          $ref: '../shared/responses/Unauthorized.yaml'
+        '500':
+          $ref: '../shared/responses/InternalServerError.yaml'
+  /auth/register:
+    post:
+      summary: User registration
+      description: Register a new user and return user details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Successful registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          $ref: '../shared/responses/BadRequest.yaml'
+        '500':
+          $ref: '../shared/responses/InternalServerError.yaml'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+      required:
+        - id
+        - email
+        - firstName
+        - lastName
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      required:
+        - email
+        - password
+
+    LoginResponse:
+      allOf:
+        - $ref: '../shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            token:
+              type: string
+            user:
+              $ref: '#/components/schemas/User'
+          required:
+            - token
+            - user
+
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        firstName:
+          type: string
+        lastName:
+          type: string
+        name:
+          type: string
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+    RegisterResponse:
+      allOf:
+        - $ref: '../shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+          required:
+            - user

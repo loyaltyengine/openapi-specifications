@@ -1,0 +1,5 @@
+description: Not found - Resource does not exist
+content:
+  application/json:
+    schema:
+      $ref: '../schemas/Response.yaml'

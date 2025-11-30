@@ -215,7 +215,7 @@ paths:
           in: path
           required: true
           schema:
-            $ref: '#/components/schemas/Code'
+            $ref: '#/components/schemas/CouponCode'
       responses:
         '200':
           description: Coupon details
@@ -259,7 +259,7 @@ paths:
           in: path
           required: true
           schema:
-            $ref: '#/components/schemas/Code'
+            $ref: '#/components/schemas/CouponCode'
       responses:
         '204':
           description: Coupon deleted successfully
@@ -300,7 +300,7 @@ paths:
           in: path
           required: true
           schema:
-            $ref: '#/components/schemas/Code'
+            $ref: '#/components/schemas/CouponCode'
 
       requestBody:
         required: false
@@ -346,7 +346,7 @@ paths:
           in: path
           required: true
           schema:
-            $ref: '#/components/schemas/Code'
+            $ref: '#/components/schemas/CouponCode'
       responses:
         '200':
           $ref: '#/components/responses/RedemptionResponse'
@@ -412,8 +412,8 @@ components:
           $ref: '#/components/schemas/CouponType'
         description:
           $ref: '#/components/schemas/Description'
-        usageLimit:
-          $ref: '#/components/schemas/UsageLimit'
+        usage:
+          $ref: '#/components/schemas/CouponUsage'
         multiUser:
           $ref: '#/components/schemas/MultiUser'
         eligible:
@@ -518,7 +518,7 @@ components:
           free_shipping: '#/components/schemas/FreeShippingRedemption'
       properties:
         code:
-          $ref: '#/components/schemas/Code'
+          $ref: '#/components/schemas/CouponCode'
         propertyId:
           $ref: '#/components/schemas/PropertyId'
         ownedByCustomerId:
@@ -586,7 +586,7 @@ components:
           free_shipping: '#/components/schemas/FreeShippingCoupon'
       properties:
         code:
-          $ref: '#/components/schemas/Code'
+          $ref: '#/components/schemas/CouponCode'
         propertyId:
           $ref: '#/components/schemas/PropertyId'
         customerId:
@@ -716,9 +716,10 @@ components:
       type: object
       properties:
         value:
-          type: string
+          type: number
           pattern: '^\d+(\.\d{1,2})?$'
-          example: "10.00"
+          example: 10.00
+          minimum: 0
           description: "Amount value with up to 2 decimal places. Must be positive."
         currency:
           $ref: '#/components/schemas/Currency'
@@ -775,12 +776,18 @@ components:
       description: |
         Coupon status
       example: active
-    Code:
+    CouponCode:
       type: string
       example: E3B0C44298FC1C149A
       description: |
         Unique coupon code. Customers will use this code
         to redeem a coupon.
+    RequestCode:
+      type: string
+      example: E3B0C44298FC1C149A
+      description: |
+        Unique coupon code. Customers will use this code
+        to redeem a coupon. Autogerated if not provided.
     Description:
       type: string
       description: |
@@ -815,7 +822,23 @@ components:
       description: |
         Coupon start date.
       example: 2024-09-30T15:30:00Z
-
+    UsageBalance:
+      type: integer
+      description: |
+        Remaining number of times a coupon can be used.
+      example: 2
+    CampaignId:
+      type: string
+      description: |
+        Campaign identifier associated with the coupon. Used for marketing purposes.
+      example: 5a3d8d0b-9f0b-4f6b-9c20-5a7d8c0b5c8d
+    CouponUsage:
+      type: object
+      properties:
+        limit:
+          $ref: '#/components/schemas/UsageLimit'
+        balance:
+          $ref: '#/components/schemas/UsageBalance'
     Pagination:
       type: object
       properties:

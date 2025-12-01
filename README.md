@@ -1,2 +1,2 @@
-# awoolla-openapi
+# OpenAPI Specifications
 REST API Spec

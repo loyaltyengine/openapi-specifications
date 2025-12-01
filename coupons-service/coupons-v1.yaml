@@ -3,19 +3,19 @@ openapi: 3.1.1
 info:
   title: Coupons API
   version: 1.0.0
-  summary: Awoolla Coupons API
+  summary: Coupons API
   description: |
-    Awoolla Coupons API
+    Coupons API
   contact:
-    name: Awoolla Support
-    url: https://www.awoolla.com/support
-    email: support@awoolla.com
+    name: Coupons API Support
+    url: https://www.loyaltyengine.org/support
+    email: support@loyaltyengine.org
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
 
 servers:
-  - url: https://api.awoolla.com
+  - url: https://api.loyaltyengine.org
     description: Live server
 
 paths:
@@ -751,7 +751,7 @@ components:
     PropertyId:
       type: string
       description: |
-        Unique property identifier. Properties represent websites, organizations, or applications using Awoolla services.
+        Unique property identifier. Properties represent websites, organizations, or applications using the loyalty program services.
       example: 5a3d8d0b-9f0b-4f6b-9c20-5a7d8c0b5c8d
     CustomerId:
       type: string

@@ -7,3 +7,5 @@ properties:
   message:
     type: string
     description: Error message
+required:
+  - message

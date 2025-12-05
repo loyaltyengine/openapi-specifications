@@ -70,16 +70,15 @@ paths:
         '200':
           $ref: '#/components/responses/ListCouponsResponse'
         '400':
-          $ref: '../shared/responses/BadRequest.yaml'
+          $ref: './shared/responses/BadRequest.yaml'
         '401':
-          $ref: '../shared/responses/Unauthorized.yaml'
+          $ref: './shared/responses/Unauthorized.yaml'
         '403':
-          $ref: '../shared/responses/Forbidden.yaml'
+          $ref: './shared/responses/Forbidden.yaml'
         '404':
-          $ref: '../shared/responses/NotFound.yaml'
+          $ref: './shared/responses/NotFound.yaml'
         '500':
-          $ref: '../shared/responses/InternalServerError.yaml'
-
+          $ref: './shared/responses/InternalServerError.yaml'
   /coupons/v1/properties/{propertyId}/customers/{customerId}/coupons:
     get:
       summary: List specific customer coupons
@@ -136,16 +135,15 @@ paths:
         '200':
           $ref: '#/components/responses/ListCouponsResponse'
         '400':
-          $ref: '../shared/responses/BadRequest.yaml'
+          $ref: './shared/responses/BadRequest.yaml'
         '401':
-          $ref: '../shared/responses/Unauthorized.yaml'
+          $ref: './shared/responses/Unauthorized.yaml'
         '403':
-          $ref: '../shared/responses/Forbidden.yaml'
+          $ref: './shared/responses/Forbidden.yaml'
         '404':
-          $ref: '../shared/responses/NotFound.yaml'
+          $ref: './shared/responses/NotFound.yaml'
         '500':
-          $ref: '../shared/responses/InternalServerError.yaml'
-
+          $ref: './shared/responses/InternalServerError.yaml'
     post:
       summary: Create coupon
       description: |
@@ -181,13 +179,13 @@ paths:
         '201':
           $ref: '#/components/responses/CreateCouponResponse'
         '400':
-          $ref: '../shared/responses/BadRequest.yaml'
+          $ref: './shared/responses/BadRequest.yaml'
         '401':
-          $ref: '../shared/responses/Unauthorized.yaml'
+          $ref: './shared/responses/Unauthorized.yaml'
         '403':
-          $ref: '../shared/responses/Forbidden.yaml'
+          $ref: './shared/responses/Forbidden.yaml'
         '500':
-          $ref: '../shared/responses/InternalServerError.yaml'
+          $ref: './shared/responses/InternalServerError.yaml'
 
   /coupons/v1/properties/{propertyId}/customers/{customerId}/coupons/{couponCode}:
     get:
@@ -224,16 +222,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetCouponResponse'
         '400':
-          $ref: '../shared/responses/BadRequest.yaml'
+          $ref: './shared/responses/BadRequest.yaml'
         '401':
-          $ref: '../shared/responses/Unauthorized.yaml'
+          $ref: './shared/responses/Unauthorized.yaml'
         '403':
-          $ref: '../shared/responses/Forbidden.yaml'
+          $ref: './shared/responses/Forbidden.yaml'
         '404':
-          $ref: '../shared/responses/NotFound.yaml'
+          $ref: './shared/responses/NotFound.yaml'
         '500':
-          $ref: '../shared/responses/InternalServerError.yaml'
-
+          $ref: './shared/responses/InternalServerError.yaml'
     delete:
       summary: Delete coupon
       description: |
@@ -264,15 +261,15 @@ paths:
         '204':
           description: Coupon deleted successfully
         '400':
-          $ref: '../shared/responses/BadRequest.yaml'
+          $ref: './shared/responses/BadRequest.yaml'
         '401':
-          $ref: '../shared/responses/Unauthorized.yaml'
+          $ref: './shared/responses/Unauthorized.yaml'
         '403':
-          $ref: '../shared/responses/Forbidden.yaml'
+          $ref: './shared/responses/Forbidden.yaml'
         '404':
-          $ref: '../shared/responses/NotFound.yaml'
+          $ref: './shared/responses/NotFound.yaml'
         '500':
-          $ref: '../shared/responses/InternalServerError.yaml'
+          $ref: './shared/responses/InternalServerError.yaml'
 
   /coupons/v1/properties/{propertyId}/customers/{customerId}/coupons/{couponCode}/redemptions:
     post:
@@ -312,15 +309,15 @@ paths:
         '200':
           $ref: '#/components/responses/RedemptionResponse'
         '400':
-          $ref: '../shared/responses/BadRequest.yaml'
+          $ref: './shared/responses/BadRequest.yaml'
         '401':
-          $ref: '../shared/responses/Unauthorized.yaml'
+          $ref: './shared/responses/Unauthorized.yaml'
         '403':
-          $ref: '../shared/responses/Forbidden.yaml'
+          $ref: './shared/responses/Forbidden.yaml'
         '404':
-          $ref: '../shared/responses/NotFound.yaml'
+          $ref: './shared/responses/NotFound.yaml'
         '500':
-          $ref: '../shared/responses/InternalServerError.yaml'
+          $ref: './shared/responses/InternalServerError.yaml'
     get:
       summary: Get coupon redemption details
       description: |
@@ -330,7 +327,7 @@ paths:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - coupons
+        - redemptions
       parameters:
         - name: propertyId
           in: path
@@ -351,15 +348,15 @@ paths:
         '200':
           $ref: '#/components/responses/RedemptionResponse'
         '400':
-          $ref: '../shared/responses/BadRequest.yaml'
+          $ref: './shared/responses/BadRequest.yaml'
         '401':
-          $ref: '../shared/responses/Unauthorized.yaml'
+          $ref: './shared/responses/Unauthorized.yaml'
         '403':
-          $ref: '../shared/responses/Forbidden.yaml'
+          $ref: './shared/responses/Forbidden.yaml'
         '404':
-          $ref: '../shared/responses/NotFound.yaml'
+          $ref: './shared/responses/NotFound.yaml'
         '500':
-          $ref: '../shared/responses/InternalServerError.yaml'
+          $ref: './shared/responses/InternalServerError.yaml'
 components:
   securitySchemes:
     bearerAuth:
@@ -466,7 +463,7 @@ components:
 
     CreateCouponResponse:
       allOf:
-        - $ref: '../shared/schemas/Response.yaml'
+        - $ref: './shared/schemas/Response.yaml'
         - type: object
           properties:
             coupon:
@@ -474,7 +471,7 @@ components:
 
     ListCouponsResponse:
       allOf:
-        - $ref: '../shared/schemas/Response.yaml'
+        - $ref: './shared/schemas/Response.yaml'
         - type: object
           properties:
             pagination:
@@ -486,7 +483,7 @@ components:
 
     GetCouponResponse:
       allOf:
-        - $ref: '../shared/schemas/Response.yaml'
+        - $ref: './shared/schemas/Response.yaml'
         - type: object
           properties:
             coupon:
@@ -501,7 +498,7 @@ components:
 
     RedemptionResponse:
       allOf:
-        - $ref: '../shared/schemas/Response.yaml'
+        - $ref: './shared/schemas/Response.yaml'
         - type: object
           properties:
             redemption:
@@ -527,8 +524,8 @@ components:
           $ref: '#/components/schemas/CustomerId'
         couponType:
           $ref: '#/components/schemas/CouponType'
-        usageLimitBalance:
-          $ref: '#/components/schemas/UsageLimit'
+        usage:
+          $ref: '#/components/schemas/CouponUsage'
         redeemedAt:
           type: string
           format: date-time
@@ -593,8 +590,8 @@ components:
           $ref: '#/components/schemas/CustomerId'
         couponType:
           $ref: '#/components/schemas/CouponType'
-        usageLimit:
-          $ref: '#/components/schemas/UsageLimit'
+        usage:
+          $ref: '#/components/schemas/CouponUsage'
         description:
           $ref: '#/components/schemas/Description'
         multiUser:
@@ -717,7 +714,6 @@ components:
       properties:
         value:
           type: number
-          pattern: '^\d+(\.\d{1,2})?$'
           example: 10.00
           minimum: 0
           description: "Amount value with up to 2 decimal places. Must be positive."
@@ -787,7 +783,7 @@ components:
       example: E3B0C44298FC1C149A
       description: |
         Unique coupon code. Customers will use this code
-        to redeem a coupon. Autogerated if not provided.
+        to redeem a coupon. Autogenerated if not provided.
     Description:
       type: string
       description: |

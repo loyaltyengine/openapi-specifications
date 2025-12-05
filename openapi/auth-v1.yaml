@@ -37,12 +37,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
         '400':
-          $ref: '../shared/responses/BadRequest.yaml'
+          $ref: './shared/responses/BadRequest.yaml'
         '401':
-          $ref: '../shared/responses/Unauthorized.yaml'
+          $ref: './shared/responses/Unauthorized.yaml'
         '500':
-          $ref: '../shared/responses/InternalServerError.yaml'
-  /auth/register:
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/register:
     post:
       summary: User registration
       description: Register a new user and return user details.
@@ -60,9 +60,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/RegisterResponse'
         '400':
-          $ref: '../shared/responses/BadRequest.yaml'
+          $ref: './shared/responses/BadRequest.yaml'
         '500':
-          $ref: '../shared/responses/InternalServerError.yaml'
+          $ref: './shared/responses/InternalServerError.yaml'
 
 components:
   schemas:
@@ -100,7 +100,7 @@ components:
 
     LoginResponse:
       allOf:
-        - $ref: '../shared/schemas/Response.yaml'
+        - $ref: './shared/schemas/Response.yaml'
         - type: object
           properties:
             accessToken:
@@ -131,8 +131,7 @@ components:
           type: string
         lastName:
           type: string
-        name:
-          type: string
+
       required:
         - email
         - password
@@ -140,7 +139,7 @@ components:
         - lastName
     RegisterResponse:
       allOf:
-        - $ref: '../shared/schemas/Response.yaml'
+        - $ref: './shared/schemas/Response.yaml'
         - type: object
           properties:
             user:

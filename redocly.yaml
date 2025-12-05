@@ -1,0 +1,16 @@
+extends:
+  - recommended
+
+rules:
+  no-unused-components: warn
+  operation-operationId: error
+  operation-summary: error
+  tag-description: warn
+
+apis:
+  coupons@v1:
+    root: ./openapi/coupons-v1.yaml
+    output: ./dist/coupons-v1.yaml
+  auth@v1:
+    root: ./openapi/auth-v1.yaml
+    output: ./dist/auth-v1.yaml

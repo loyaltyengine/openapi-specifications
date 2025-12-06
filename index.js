@@ -11,6 +11,9 @@ app.use(
   '/',
   apiReference({
     theme: 'purple',
+    pathRouting: {
+      basePath: '/'
+    },
     sources: [
       {
         title: 'Authentication v1',

@@ -41,7 +41,9 @@ npm start
 |---------|-------------|
 | `npm start` | Bundle specs and start the documentation server |
 | `npm run bundle` | Bundle OpenAPI specs with external references resolved to `dist/` folder |
-| `npm run lint-redocly` | Lint OpenAPI specifications for errors and best practices |
+| `npm run lint:redocly` | Lint OpenAPI specifications for errors and best practices |
+| `npm run codegen:java -- dist/<spec-file>` | Generate Java client from bundled spec (output: `generated/java/`)<br>Example: `npm run codegen:java -- dist/coupons-v1.yaml` |
+| `npm run codegen:typescript -- dist/<spec-file>` | Generate TypeScript client from bundled spec (output: `generated/typescript/`)<br>Example: `npm run codegen:typescript -- dist/coupons-v1.yaml` |
 
 ## API Documentation
 

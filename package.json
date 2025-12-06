@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "bundle": "redocly bundle",
-    "lint-redocly": "redocly lint",
+    "lint:redocly": "redocly lint",
+    "codegen:java": "openapi-generator-cli generate --skip-validate-spec -g java -o ./generated/java -i",
+    "codegen:typescript": "openapi-generator-cli generate --skip-validate-spec -g typescript-fetch -o ./generated/typescript -i",
     "start": "npm run bundle && node index.js"
   },
   "repository": {

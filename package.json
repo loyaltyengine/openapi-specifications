@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "bundle": "redocly bundle",
-    "lint-redocly": "redocly --format summary lint",
+    "lint-redocly": "redocly lint",
     "start": "npm run bundle && node index.js"
   },
   "repository": {

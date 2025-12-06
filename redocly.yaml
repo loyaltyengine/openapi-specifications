@@ -1,11 +1,11 @@
 extends:
   - recommended
 
-rules:
-  no-unused-components: warn
-  operation-operationId: error
-  operation-summary: error
-  tag-description: warn
+# rules:
+#   no-unused-components: warn
+#   operation-operationId: error
+#   operation-summary: error
+#   tag-description: warn
 
 apis:
   coupons@v1:

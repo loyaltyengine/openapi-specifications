@@ -1,0 +1,32 @@
+{
+  "name": "openapi-specifications",
+  "version": "1.0.0",
+  "description": "OpenAPI Specifications",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "redocly bundle",
+    "lint:redocly": "redocly lint",
+    "codegen:java": "openapi-generator-cli generate --skip-validate-spec -g java -o ./generated/java -i",
+    "codegen:typescript": "openapi-generator-cli generate --skip-validate-spec -g typescript-fetch -o ./generated/typescript -i",
+    "start": "npm run bundle && node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loyaltyengine/openapi-specifications.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/loyaltyengine/openapi-specifications/issues"
+  },
+  "homepage": "https://github.com/loyaltyengine/openapi-specifications#readme",
+  "dependencies": {
+    "@openapitools/openapi-generator-cli": "^2.25.2",
+    "@redocly/cli": "^2.12.3",
+    "@scalar/express-api-reference": "^0.8.26",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "yaml": "^2.8.2"
+  }
+}

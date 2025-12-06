@@ -1,6 +1,6 @@
 # OpenAPI Specifications
 
-REST API specifications for the Loyalty Engine platform.
+Loyalty Engine REST API specifications.
 
 ## Tech Stack
 

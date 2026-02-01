@@ -1,0 +1,11 @@
+type: string
+enum:
+  - invalid_request
+  - unauthorized
+  - forbidden
+  - not_found
+  - token_expired
+  - invalid_token
+  - token_not_found
+  - validation_error
+  - internal_server_error

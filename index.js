@@ -16,13 +16,13 @@ app.use(
     },
     sources: [
       {
-        title: 'Authentication v1',
+        title: 'Authentication (v1)',
         slug: 'auth-v1',
         url: '/api/auth-v1.yaml',
         default: true,
       },
       {
-        title: 'Coupons v1',
+        title: 'Coupons (v1)',
         slug: 'coupons-v1',
         url: '/api/coupons-v1.yaml',
       },

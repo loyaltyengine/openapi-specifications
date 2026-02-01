@@ -2,4 +2,10 @@ description: Not found - Resource does not exist
 content:
   application/json:
     schema:
-      $ref: '../schemas/Response.yaml'
+      $ref: '../schemas/ErrorResponse.yaml'
+    example:
+      status:
+        code: 404
+        message: "Not Found"
+      error: "not_found"
+      description: "The requested resource does not exist."

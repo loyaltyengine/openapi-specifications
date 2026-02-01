@@ -2,13 +2,15 @@ description: Bad request - Invalid input parameters
 content:
   application/json:
     schema:
-      $ref: '../schemas/ErrorsResponse.yaml'
+      $ref: '../schemas/ErrorResponse.yaml'
     example:
       status:
         code: 400
         message: "Bad Request"
-      errors:
+      error: "validation_error"
+      description: "The request parameters are invalid."
+      details:
         - field: "email"
-          message: "Invalid email format"
-        - field: "age"
-          message: "Must be a positive integer"
+          issue: "Email format is invalid"
+        - field: "password"
+          issue: "Password must be at least 8 characters long"

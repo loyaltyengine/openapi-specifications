@@ -2,4 +2,10 @@ description: Forbidden - Insufficient permissions
 content:
   application/json:
     schema:
-      $ref: '../schemas/Response.yaml'
+      $ref: '../schemas/ErrorResponse.yaml'
+    example:
+      status:
+        code: 403
+        message: "Forbidden"
+      error: "forbidden"
+      description: "You do not have permission to access this resource."

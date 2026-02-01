@@ -2,4 +2,10 @@ description: Internal server error - Unexpected condition encountered
 content:
   application/json:
     schema:
-      $ref: '../schemas/Response.yaml'
+      $ref: '../schemas/ErrorResponse.yaml'
+    example:
+      status:
+        code: 500
+        message: "Internal Server Error"
+      error: "internal_server_error"
+      description: "An unexpected condition has occurred."

@@ -1,0 +1,24 @@
+description: A standard error response
+allOf:
+  - $ref: './Response.yaml'
+  - type: object
+    properties:
+      error:
+        $ref: './ErrorType.yaml'
+        description: The error type
+      description:
+        type: string
+        description: A human-readable description of the error
+      details:
+        type: array
+        items:
+          type: object
+          properties:
+            field:
+              type: string
+              description: The field related to the error
+            issue:
+              type: string
+              description: A description of the issue with the field
+    required:
+      - error

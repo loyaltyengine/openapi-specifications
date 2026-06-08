@@ -1,0 +1,4 @@
+type: string
+description: |
+  Unique reference pointing to an external Coupon Schema entity.
+example: 5a3d8d0b-9f0b-4f6b-9c20-5a7d8c0b5c8d

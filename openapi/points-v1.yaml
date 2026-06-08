@@ -1,0 +1,352 @@
+openapi: 3.1.1
+
+info:
+  title: Points API
+  version: 1.0.0
+  summary: Points API
+  description: |
+    Points API
+  contact:
+    name: Points API Support
+    url: https://www.loyaltyengine.org/support
+    email: support@loyaltyengine.org
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://api.loyaltyengine.org
+    description: Live server
+
+paths:
+  /points:
+    get:
+      summary: List all points
+      description: |
+        Retrieve all points for a property
+      operationId: listPoints
+      security:
+        - bearerAuth: []
+        - apiKey: []
+      tags:
+        - points
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token authentication
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key authentication
+
+  schemas:
+    CreatePointRequest:
+      type: object
+      properties:
+        pointTypeId:
+          $ref: '#/components/schemas/PointTypeId'
+        numberOfPoints:
+          $ref: '#/components/schemas/NumberOfPoints'
+        validFrom:
+          $ref: '#/components/schemas/ValidFrom'
+        expireAt:
+          $ref: '#/components/schemas/ExpireAt'
+        description:
+          $ref: '#/components/schemas/PointDescription'
+      required:
+        - numberOfPoints
+
+    PointResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            point:
+              $ref: '#/components/schemas/Point'
+
+    PointsResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            page:
+              $ref: '#/components/schemas/Page'
+            points:
+              type: array
+              items:
+                $ref: '#/components/schemas/Point'
+    Point:
+      type: object
+      description: |
+        Points entry
+      properties:
+        pointId:
+          $ref: '#/components/schemas/PointId'
+        customerId:
+          $ref: './shared/schemas/CustomerId.yaml'
+        propertyId:
+          $ref: './shared/schemas/PropertyId.yaml'
+        pointTypeId:
+          $ref: '#/components/schemas/PointTypeId'
+        numberOfPoints:
+          $ref: '#/components/schemas/NumberOfPoints'
+        remainingPoints:
+          $ref: '#/components/schemas/NumberOfPoints'
+        validFrom:
+          $ref: '#/components/schemas/ValidFrom'
+        expireAt:
+          $ref: '#/components/schemas/ExpireAt'
+        description:
+          $ref: '#/components/schemas/PointDescription'
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-06-05T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-06-05T15:45:00Z"
+        status:
+          type: string
+          enum: [PENDING, ACTIVE, CANCELLED]
+          default: ACTIVE
+          example: "ACTIVE"
+
+    PointTransaction:
+      type: object
+      description: An entry tracking points movement.
+      properties:
+        transactionId:
+          type: string
+          example: "tx_88f92a"
+        propertyId:
+          $ref: './shared/schemas/PropertyId.yaml'
+        customerId:
+          $ref: './shared/schemas/CustomerId.yaml'
+        type:
+          type: string
+          enum: [CREDIT, DEBIT]
+          description: CREDIT increments points, DEBIT decrements points.
+        amount:
+          $ref: '#/components/schemas/NumberOfPoints'
+        reason:
+          type: string
+          enum: [GRANT, REDEMPTION, EXPIRATION, CANCELLED]
+        pointId:
+          $ref: '#/components/schemas/PointId'
+        createdAt:
+          type: string
+          format: date-time
+
+    PointType:
+      type: object
+      description: |
+        Point type
+      properties:
+        pointTypeId:
+          $ref: '#/components/schemas/PointTypeId'
+        propertyId:
+          $ref: './shared/schemas/PropertyId.yaml'
+        name:
+          type: string
+          example: "referral_reward"
+        numberOfPoints:
+          $ref: '#/components/schemas/NumberOfPoints'
+
+    Redemption:
+      type: object
+      description: A redemption
+      properties:
+        redemptionId:
+          type: string
+          example: "red_33a11b"
+        propertyId:
+          $ref: './shared/schemas/PropertyId.yaml'
+        customerId:
+          $ref: './shared/schemas/CustomerId.yaml'
+        redemptionType:
+          type: string
+          enum: [COUPON, PRODUCT, GIFT_CARD]
+          example: "COUPON"
+        targetId:
+          type: string
+          description: Generic pointer to the generated reward. If type is COUPON, this holds the couponId.
+          example: "5a3d8d0b-9f0b-4f6b-9c20-5a7d8c0b5c8d"
+        points:
+          type: integer
+          minimum: 0
+          example: 10
+          description: Number of individual points points granted or spent.
+        createdAt:
+          type: string
+          format: date-time
+
+    RedemptionRule:
+      type: object
+      description: Configuration rule specifying points required to unlock a specific redemption type.
+      properties:
+        propertyId:
+          $ref: './shared/schemas/PropertyId.yaml'
+        pointTypeId:
+          $ref: '#/components/schemas/PointTypeId'
+        redemptionType:
+          $ref: '#/components/schemas/RedemptionType'
+        numberOfPoints:
+          type: integer
+          minimum: 0
+          example: 10
+        equivalentValue:
+          type: number
+          minimum: 0
+          example: 10
+        couponType:
+          type: string
+          enum: [percentage, fixed_amount]
+        amountCurrency:
+          $ref: '#/components/schemas/Currency'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RedemptionRuleResponse:
+          allOf:
+            - $ref: './shared/schemas/Response.yaml'
+            - type: object
+              properties:
+                redemptionRule:
+                  $ref: '#/components/schemas/RedemptionRule'
+
+    CreateRedemptionRuleRequest:
+      type: object
+      properties:
+        propertyId:
+          $ref: './shared/schemas/PropertyId.yaml'
+        pointTypeId:
+          $ref: '#/components/schemas/PointTypeId'
+        redemptionType:
+          $ref: '#/components/schemas/RedemptionType'
+        couponType:
+          type: string
+          enum: [percentage, fixed_amount]
+        numberOfPoints:
+          type: integer
+          minimum: 0
+          example: 10
+          description: Number of points required
+        equivalentValue:
+          type: number
+          minimum: 0
+          example: 10
+        amountCurrency:
+          $ref: '#/components/schemas/Currency'
+
+    NumberOfPoints:
+      type: integer
+      minimum: 0
+      example: 10
+      description: Number of individual points points granted or spent.
+
+    Currency:
+      type: string
+      description: |
+        Coupon currency. ISO 4217 currency code.
+      example: USD
+    
+    RedemptionType:
+      type: string
+      enum: [COUPON, CASHBACK]
+      example: "COUPON"
+
+    PointDescription:
+      type: string
+
+    PointTypeId:
+      type: string
+      description: Unique identifier linking to administrative configuration templates.
+      example: "pt_type_ref_01"
+
+    PointId:
+      type: string
+      description: Unique transactional reference tracking an active point entry.
+      example: "pt_992a8f"
+
+    ExpireAt:
+      type: string
+      format: date-time
+      example: 2026-09-30T15:30:00Z
+
+    ValidFrom:
+      type: string
+      format: date-time
+      example: 2026-06-05T12:50:00Z
+    ErrorType:
+        type: string
+        enum:
+          - invalid_request
+          - insufficient_points
+          - unauthorized
+          - forbidden
+          - not_found
+          - validation_error
+          - internal_server_error
+          - conflict_error
+    ErrorResponse:
+      description: A standard error response
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            error:
+              $ref: '#/components/schemas/ErrorType'
+              description: The error type
+            description:
+              type: string
+              description: A human-readable description of the error
+            details:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorDetail'
+
+          required:
+            - error
+    ErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+          description: The field related to the error
+        issue:
+          type: string
+          description: A description of the issue with the field
+      required:
+        - field
+        - issue
+    Page:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        size:
+          type: integer
+          example: 20
+        totalElements:
+          type: integer
+          example: 150
+        totalPages:
+          type: integer
+          example: 150
+        sort:
+          type: string
+          example: 'createdAt'
+        order:
+          type: string
+          example: 'asc'

@@ -1,7 +1,8 @@
-const { apiReference } = require('@scalar/express-api-reference')
-const express = require('express')
+import express from 'express';
+import { apiReference } from '@scalar/express-api-reference';
+import 'dotenv/config';
+
 const app = express()
-require('dotenv').config()
 
 const port = process.env.PORT || 3000
 
@@ -32,6 +33,11 @@ app.use(
   }),
 )
 
-/* app.listen(port, () => {
-  console.log(`Scalar express app listening on port ${port}`)
-}) */
+export default app;
+
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Scalar express app listening locally on port ${port}`);
+  });
+}

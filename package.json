@@ -1,6 +1,7 @@
 {
   "name": "openapi-specifications",
   "version": "1.0.0",
+  "type": "module",
   "description": "OpenAPI Specifications",
   "main": "index.js",
   "scripts": {

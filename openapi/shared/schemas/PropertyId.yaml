@@ -1,0 +1,4 @@
+type: string
+description: |
+  Unique property identifier. Properties represent websites, organizations, or applications using the loyalty program services.
+example: 5a3d8d0b-9f0b-4f6b-9c20-5a7d8c0b5c8d

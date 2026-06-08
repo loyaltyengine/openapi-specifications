@@ -14,3 +14,6 @@ apis:
   auth@v1:
     root: ./openapi/auth-v1.yaml
     output: ./dist/auth-v1.yaml
+  points@v1:
+    root: ./openapi/points-v1.yaml
+    output: ./dist/points-v1.yaml

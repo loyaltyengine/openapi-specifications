@@ -32,6 +32,6 @@ app.use(
   }),
 )
 
-app.listen(port, () => {
+/* app.listen(port, () => {
   console.log(`Scalar express app listening on port ${port}`)
-})
+}) */

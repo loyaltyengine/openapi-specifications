@@ -1,11 +1,22 @@
 openapi: 3.1.1
 info:
-  title: Auth API
+  title: Auth Service API
   version: 1.0.0
   description: |
-    Auth API
+    Authentication and user-management service for Loyalty Engine.
+
+    This service provides functionality for:
+      - User login (basic credentials + JWT issuance)
+      - User registration
+      - OAuth2 / third-party authentication flows
+      - Property-level API keys management
+      - User profile and user management (read, update, deactivate)
+
+    Use these endpoints to authenticate callers, manage account access,
+    and obtain credentials for calling other Loyalty Engine services.
+    Source code: https://github.com/loyaltyengine/auth-service
   contact:
-    name: Auth API Support
+    name: Loyalty Engine Auth Support
     url: https://www.loyaltyengine.org/support
     email: support@loyaltyengine.org
   license:
@@ -18,11 +29,23 @@ servers:
   - url: https://staging-api.loyaltyengine.org
     description: Staging server
 
+tags:
+  - name: Authentication
+    description: User login, logout, registration, and token management endpoints
+  - name: OAuth
+    description: OAuth2 and third-party authentication flows
+  - name: API Keys
+    description: Property-level API key creation and management
+  - name: User Management
+    description: User profile operations (create, read, update, deactivate)
+
 paths:
-  /auth/v1/login/basic:
+  /auth/v1/login:
     post:
       summary: User login
-      description: Authenticate a user and return a JWT token.
+      tags:
+        - Authentication
+      description: Authenticates a user. Returns JWT token and sets a refresh token cookie.
       requestBody:
         required: true
         content:
@@ -31,11 +54,7 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Successful login
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LoginResponse'
+          $ref: '#/components/responses/LoginSuccess'
         '400':
           $ref: './shared/responses/BadRequest.yaml'
         '401':
@@ -45,6 +64,8 @@ paths:
   /auth/v1/register:
     post:
       summary: User registration
+      tags:
+        - Authentication
       description: Register a new user and return user details.
       requestBody:
         required: true
@@ -53,20 +74,701 @@ paths:
             schema:
               $ref: '#/components/schemas/RegisterRequest'
       responses:
-        '200':
-          description: Successful registration
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RegisterResponse'
+        '201':
+          $ref: '#/components/responses/RegisterSuccess'
         '400':
           $ref: './shared/responses/BadRequest.yaml'
         '500':
           $ref: './shared/responses/InternalServerError.yaml'
-
+  /auth/v1/refresh:
+    post:
+      summary: Refresh JWT token
+      tags:
+        - Authentication
+      description: |
+        Refresh an existing JWT token using the refresh token stored in an HTTP-only cookie.
+        The refresh token cookie must be present in the request. A new refresh token will be set in the response cookie.
+      responses:
+        '200':
+          $ref: '#/components/responses/RefreshSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/logout:
+    post:
+      summary: User logout
+      tags:
+        - Authentication
+      description: |
+        Logout the current user by invalidating both the access token and refresh token.
+        Requires authentication via Bearer token. Clears the refresh token cookie.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/LogoutSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/protected:
+    get:
+      summary: Protected route test
+      tags:
+        - Authentication
+      description: |
+        A protected endpoint used to test authentication. Requires a valid JWT access token.
+        Returns a simple string confirming the request was authenticated successfully.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            text/plain:
+              example: Protected route
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/users/me:
+    get:
+      summary: Get current user profile
+      tags:
+        - User Management
+      description: Retrieve the profile of the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/GetUserSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+    patch:
+      summary: Update current user profile
+      tags:
+        - User Management
+      description: |
+        Update the profile of the currently authenticated user.
+        Only the fields provided in the request body will be updated.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/UpdateUserSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+    delete:
+      summary: Delete current user account
+      tags:
+        - User Management
+      description: |
+        Permanently delete the currently authenticated user's account.
+        This action is irreversible. All user data will be removed.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/DeleteUserSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/users/me/deactivate:
+    post:
+      summary: Deactivate current user account
+      tags:
+        - User Management
+      description: |
+        Deactivate the currently authenticated user's account.
+        The user will not be able to login until the account is reactivated.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/DeactivateUserSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/users/me/reactivate:
+    post:
+      summary: Reactivate current user account
+      tags:
+        - User Management
+      description: |
+        Reactivate the currently authenticated user's account.
+        The user must login first to reactivate their account.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/ReactivateUserSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/users/me/emails:
+    post:
+      summary: Add email to current user
+      tags:
+        - User Management
+      description: Add a new email address to the currently authenticated user.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddEmailRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/AddEmailSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+    get:
+      summary: List emails of current user
+      tags:
+        - User Management
+      description: Retrieve the list of email addresses associated with the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/ListEmailsSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/users/me/emails/{emailId}:
+    delete:
+      summary: Delete email from current user
+      tags:
+        - User Management
+      description: |
+        Delete an email address from the currently authenticated user's account.
+        The primary email cannot be deleted.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: emailId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the email to delete.
+      responses:
+        '200':
+          $ref: '#/components/responses/DeleteEmailSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/users/me/emails/{emailId}/primary:
+    patch:
+      summary: Set email as primary
+      tags:
+        - User Management
+      description: |
+        Set a specific email address as the primary email for the currently authenticated user.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: emailId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the email to set as primary.
+      responses:
+        '200':
+          $ref: '#/components/responses/SetPrimaryEmailSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/properties/{propertyId}/api-keys:
+    post:
+      summary: Create API key for property
+      tags:
+        - API Keys
+      description: Create a new API key for the specified property. Requires authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the property to create the API key for.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApiKeyRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/CreateApiKeySuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '403':
+          $ref: './shared/responses/Forbidden.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/properties/{propertyId}/api-keys/verify:
+    post:
+      summary: Verify API key
+      tags:
+        - API Keys
+      description: |
+        Verify that an API key is valid and active.
+        The API key must be provided in the X-API-Key header.
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the property to verify the API key for.
+      responses:
+        '200':
+          $ref: '#/components/responses/VerifyApiKeySuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/properties/{propertyId}/api-keys/deactivate:
+    post:
+      summary: Deactivate API key
+      tags:
+        - API Keys
+      description: |
+        Deactivate an API key. The key will no longer be valid for authentication.
+        Requires authentication. The API key to deactivate must be provided in the X-API-Key header.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the property to deactivate the API key for.
+      responses:
+        '200':
+          $ref: '#/components/responses/DeactivateApiKeySuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/oauth/{provider}/login:
+    get:
+      summary: Initiate OAuth login
+      tags:
+        - OAuth
+      description: |
+        Initiate the OAuth2 login flow for a specific provider (e.g., google).
+        This endpoint redirects to the provider's authorization page.
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google]
+          description: The OAuth provider to use for authentication.
+      responses:
+        '302':
+          description: Redirect to provider's authorization page
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/oauth/{provider}/callback:
+    get:
+      summary: OAuth callback
+      tags:
+        - OAuth
+      description: |
+        Handle the OAuth2 callback from the provider after user authorization.
+        Exchanges the authorization code for tokens and returns a JWT access token.
+        Sets a refresh token in an HTTP-only cookie.
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google]
+          description: The OAuth provider.
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The authorization code from the OAuth provider.
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+          description: The state parameter for CSRF protection.
+      responses:
+        '200':
+          $ref: '#/components/responses/OAuthLoginSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token for authentication
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for property-level authentication
+  responses:
+    GetUserSuccess:
+      description: Successful user retrieval
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserResponse'
+          example:
+            status:
+              code: 200
+              message: "User retrieved successfully"
+            user:
+              id: "1234567890"
+              email: "user@example.com"
+              firstName: "John"
+              lastName: "Doe"
+    GetEmailSuccess:
+      description: Successful email retrieval
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EmailResponse'
+          example:
+            status:
+              code: 200
+              message: "Email retrieved successfully"
+            email:
+              id: "email123456"
+              email: "user@example.com"
+              firstName: "John"
+              lastName: "Cena"
+    ListEmailsSuccess:
+      description: Successful emails listing
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EmailListResponse'
+          example:
+            status:
+              code: 200
+              message: "Emails retrieved successfully"
+            emails:
+              - id: "email123456"
+                email: "user@example.com"
+                firstName: "John"
+                lastName: "Cena"
+    LoginSuccess:
+      description: Successful login
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginResponse'
+          example:
+            status:
+              code: 200
+              message: "Login successful"
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+            expiresIn: 3600
+            tokenType: Bearer
+            user:
+              id: "1234567890"
+              email: "gN6oV@example.com"
+              firstName: "John"
+              lastName: "Doe"
+    RegisterSuccess:
+      description: Successful registration
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RegisterResponse'
+          example:
+            status:
+              code: 201
+              message: "Registration successful"
+            user:
+              id: "1234567890"
+              email: "gN6oV@example.com"
+              firstName: "John"
+              lastName: "Doe"
+    RefreshSuccess:
+      description: Successful token refresh
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RefreshResponse'
+          example:
+            status:
+              code: 200
+              message: "Token refresh successful"
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+            expiresIn: 3600
+            tokenType: Bearer
+    LogoutSuccess:
+      description: Successful logout
+      content:
+        application/json:
+          schema:
+            $ref: './shared/schemas/Response.yaml'
+          example:
+            status:
+              code: 200
+              message: "Logout successful"
+    CreateApiKeySuccess:
+      description: Successful API key creation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateApiKeyResponse'
+          example:
+            status:
+              code: 201
+              message: "API key created successfully"
+            apiKey: "abcd1234efgh5678ijkl9012mnop3456"
+            propertyId: "9876543210"
+    VerifyApiKeySuccess:
+      description: Successful API key verification
+      content:
+        application/json:
+          schema:
+            $ref: './shared/schemas/Response.yaml'
+          example:
+            status:
+              code: 200
+              message: "API key is valid"
+    DeactivateApiKeySuccess:
+      description: Successful API key deactivation
+      content:
+        application/json:
+          schema:
+            $ref: './shared/schemas/Response.yaml'
+          example:
+            status:
+              code: 200
+              message: "API key has been deactivated"
+    UpdateUserSuccess:
+      description: Successful user update
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserResponse'
+          example:
+            status:
+              code: 200
+              message: "User updated successfully"
+            user:
+              id: "1234567890"
+              email: "user@example.com"
+              firstName: "John"
+              lastName: "Doe"
+    DeleteUserSuccess:
+      description: Successful user deletion
+      content:
+        application/json:
+          schema:
+            $ref: './shared/schemas/Response.yaml'
+          example:
+            status:
+              code: 200
+              message: "User has been deleted"
+    DeactivateUserSuccess:
+      description: Successful user deactivation
+      content:
+        application/json:
+          schema:
+            $ref: './shared/schemas/Response.yaml'
+          example:
+            status:
+              code: 200
+              message: "User has been deactivated"
+    ReactivateUserSuccess:
+      description: Successful user reactivation
+      content:
+        application/json:
+          schema:
+            $ref: './shared/schemas/Response.yaml'
+          example:
+            status:
+              code: 200
+              message: "User has been reactivated"
+    AddEmailSuccess:
+      description: Successful email addition
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EmailResponse'
+          example:
+            status:
+              code: 201
+              message: "Email has been added"
+            email:
+              id: "email123456"
+              email: "newemail@example.com"
+              isVerified: false
+              isPrimary: false
+    DeleteEmailSuccess:
+      description: Successful email deletion
+      content:
+        application/json:
+          schema:
+            $ref: './shared/schemas/Response.yaml'
+          example:
+            status:
+              code: 200
+              message: "Email has been deleted"
+    SetPrimaryEmailSuccess:
+      description: Successful primary email change
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ChangePrimaryEmailResponse'
+          example:
+            status:
+              code: 200
+              message: "Primary email has been changed"
+            oldPrimaryEmail: "old@example.com"
+            newPrimaryEmail: "new@example.com"
+    OAuthLoginSuccess:
+      description: Successful OAuth login
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginResponse'
+          example:
+            status:
+              code: 200
+              message: "OAuth login successful"
+            accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+            expiresIn: 3600
+            tokenType: Bearer
+            user:
+              id: "1234567890"
+              email: "user@example.com"
+              firstName: "John"
+              lastName: "Doe"
+
   schemas:
     User:
+      type: object
+      properties:
+        id:
+          type: string
+        primaryEmail:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        isActive:
+          type: boolean
+          description: Indicates if the user account is active
+
+      required:
+        - id
+        - primaryEmail
+        - firstName
+        - lastName
+    UserResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+    Email:
       type: object
       properties:
         id:
@@ -74,17 +776,39 @@ components:
         email:
           type: string
           format: email
-        firstName:
-          type: string
-        lastName:
-          type: string
-
+        isVerified:
+          type: boolean
+        isPrimary:
+          type: boolean
       required:
-        - id
         - email
-        - firstName
-        - lastName
-
+    EmailResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            email:
+              $ref: '#/components/schemas/Email'
+    EmailListResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            emails:
+              type: array
+              items:
+                $ref: '#/components/schemas/Email'
+    ChangePrimaryEmailResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            oldPrimaryEmail:
+              type: string
+              format: email
+            newPrimaryEmail:
+              type: string
+              format: email
     LoginRequest:
       type: object
       properties:
@@ -108,15 +832,42 @@ components:
               description: JWT token
               example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
             expiresIn:
-              type: string
+              type: number
               description: Token expiration time
-              example: 1h
+              example: 3600
+            tokenType:
+              type: string
+              description: Type of the token
+              example: Bearer
+              default: Bearer
             user:
               $ref: '#/components/schemas/User'
           required:
             - accessToken
             - expiresIn
-            - user
+            - tokenType
+    RefreshResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            accessToken:
+              type: string
+              description: JWT token
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+            expiresIn:
+              type: number
+              description: Token expiration time
+              example: 3600
+            tokenType:
+              type: string
+              description: Type of the token
+              example: Bearer
+              default: Bearer
+          required:
+            - accessToken
+            - expiresIn
+            - tokenType
 
     RegisterRequest:
       type: object
@@ -137,6 +888,28 @@ components:
         - password
         - firstName
         - lastName
+    UpdateUserRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        password:
+          type: string
+          format: password
+          description: New password (if changing password)
+    AddEmailRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address to add
+      required:
+        - email
     RegisterResponse:
       allOf:
         - $ref: './shared/schemas/Response.yaml'
@@ -146,3 +919,77 @@ components:
               $ref: '#/components/schemas/User'
           required:
             - user
+    CreateApiKeyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the API key
+    CreateApiKeyResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            apiKey:
+              type: string
+              description: The created API key
+            propertyId:
+              type: string
+              description: The ID of the property associated with the API key
+          required:
+            - apiKey
+            - propertyId
+
+    ErrorType:
+      type: string
+      enum:
+        - validation_error
+        - bad_request
+        - unauthorized_error
+        - forbidden_error
+        - not_found
+        - conflict_error
+        - internal_server_error
+        - token_expired
+        - invalid_token
+        - empty_token
+        - invalid_credentials
+        - email_already_exists
+        - inactive_user
+        - invalid_api_key
+        - missing_api_key
+        - invalid_request
+        - oauth_authentication_failed
+        - primary_email
+
+    ErrorResponse:
+      description: A standard error response
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            error:
+              $ref: '#/components/schemas/ErrorType'
+              description: The error type
+            description:
+              type: string
+              description: A human-readable description of the error
+            details:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorDetail'
+
+          required:
+            - error
+    ErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+          description: The field related to the error
+        issue:
+          type: string
+          description: A description of the issue with the field
+      required:
+        - field
+        - issue

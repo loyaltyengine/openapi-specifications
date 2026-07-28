@@ -1,10 +1,14 @@
 openapi: 3.1.1
 info:
-  title: Coupons API
+  title: Coupons Service API
   version: 1.0.0
-  summary: Coupons API
+  summary: Coupons and redemptions management for Loyalty Engine
   description: |
-    Coupons API
+    The Coupons service provides enterprise-grade coupon management for Loyalty Engine.
+    It supports coupon creation, retrieval, lifecycle control, and redemption processing for
+    properties and customer accounts.
+    Use these endpoints to manage promotional coupons, coupon status, and redemption events
+    across Loyalty Engine properties.
   contact:
     name: Coupons API Support
     url: https://www.loyaltyengine.org/support
@@ -12,21 +16,29 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
+
 servers:
   - url: https://api.loyaltyengine.org
     description: Live server
+
+tags:
+  - name: Coupons
+    description: Manage coupons for properties and customers, including creation, retrieval, and lifecycle operations.
+  - name: Redemptions
+    description: Process coupon redemptions and retrieve redemption details.
+
 paths:
   /coupons/v1/properties/{propertyId}/coupons:
     get:
-      summary: List all property coupons
+      summary: List active property coupons
       description: |
-        Retrieve all active coupons for a property
+        Retrieve all active coupons configured for a property.
       operationId: listPropertyCoupons
       security:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - coupons
+        - Coupons
       parameters:
         - name: propertyId
           in: path
@@ -65,10 +77,17 @@ paths:
               - createdAt
               - expireAt
               - validFrom
-              - '-createdAt'
-              - '-expireAt'
-              - '-validFrom'
-            default: '-createdAt'
+            default: 'createdAt'
+        - name: sort
+          in: query
+          required: false
+          description: Sort direction
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: 'createdAt'
       responses:
         '200':
           $ref: '#/components/responses/ListCouponsResponse'
@@ -84,15 +103,15 @@ paths:
           $ref: './shared/responses/InternalServerError.yaml'
   /coupons/v1/properties/{propertyId}/customers/{customerId}/coupons:
     get:
-      summary: List specific customer coupons
+      summary: List active customer coupons
       description: |
-        Retrieve all active coupons for a specific customer
+        Retrieve all active coupons assigned to a specific customer.
       operationId: listCustomerCoupons
       security:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - coupons
+        - Coupons
       parameters:
         - name: propertyId
           in: path
@@ -154,15 +173,15 @@ paths:
         '500':
           $ref: './shared/responses/InternalServerError.yaml'
     post:
-      summary: Create coupon
+      summary: Create a new coupon
       description: |
-        Create a new coupon for a customer
+        Create a new coupon for a customer within the specified property.
       operationId: createCoupon
       security:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - coupons
+        - Coupons
       parameters:
         - name: propertyId
           in: path
@@ -195,13 +214,13 @@ paths:
     get:
       summary: Get coupon details
       description: |
-        Retrieve details of a specific coupon
+        Retrieve details of a specific coupon.
       operationId: getCoupon
       security:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - coupons
+        - Coupons
       parameters:
         - name: propertyId
           in: path
@@ -244,7 +263,7 @@ paths:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - coupons
+        - Coupons
       parameters:
         - name: propertyId
           in: path
@@ -284,7 +303,7 @@ paths:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - redemptions
+        - Redemptions
       parameters:
         - name: propertyId
           in: path

@@ -142,7 +142,7 @@ components:
         createdAt:
           type: string
           format: date-time
-
+    # PointType
     PointType:
       type: object
       description: |
@@ -158,6 +158,30 @@ components:
         numberOfPoints:
           $ref: '#/components/schemas/NumberOfPoints'
 
+    CreatePointTypeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "referral_reward"
+        description:
+          type: string
+          example: "Referral reward"
+        numberOfPoints:
+          $ref: '#/components/schemas/NumberOfPoints'
+      required:
+        - numberOfPoints
+        - name
+
+    PointTypeResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            pointType:
+              $ref: '#/components/schemas/PointType'
+
+    # Redemption
     Redemption:
       type: object
       description: A redemption
@@ -170,9 +194,7 @@ components:
         customerId:
           $ref: './shared/schemas/CustomerId.yaml'
         redemptionType:
-          type: string
-          enum: [COUPON, PRODUCT, GIFT_CARD]
-          example: "COUPON"
+          $ref: '#/components/schemas/RedemptionType'
         targetId:
           type: string
           description: Generic pointer to the generated reward. If type is COUPON, this holds the couponId.
@@ -185,10 +207,37 @@ components:
         createdAt:
           type: string
           format: date-time
+    
+    RedemptionResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            redemption:
+              $ref: '#/components/schemas/Redemption'
 
+    CreateRedemptionRequest:
+      type: object
+      description: A redemption request
+      properties:
+        redemptionType:
+          $ref: '#/components/schemas/RedemptionType'
+        numberOfPoints:
+          type: integer
+          minimum: 0
+          example: 10
+          description: Number of individual points points granted or spent.
+
+    # Redemption rules
     RedemptionRule:
       type: object
-      description: Configuration rule specifying points required to unlock a specific redemption type.
+      description: Configuration rule specifying the value metric of a single point to unlock or calculate dynamic redemptions.
+      required:
+        - propertyId
+        - pointTypeId
+        - redemptionType
+        - valuePerSinglePoint
+        - couponType
       properties:
         propertyId:
           $ref: './shared/schemas/PropertyId.yaml'
@@ -196,19 +245,22 @@ components:
           $ref: '#/components/schemas/PointTypeId'
         redemptionType:
           $ref: '#/components/schemas/RedemptionType'
-        numberOfPoints:
-          type: integer
-          minimum: 0
-          example: 10
-        equivalentValue:
-          type: number
-          minimum: 0
-          example: 10
         couponType:
           type: string
+          description: Dictates if the single point value represents a monetary fiat currency weight or a fractional percentage weight.
           enum: [percentage, fixed_amount]
+        valuePerSinglePoint:
+          type: number
+          format: double
+          minimum: 0
+          description: >
+            The weight of 1 single point. 
+            If couponType is 'fixed_amount', this is the fiat monetary value (e.g., 0.10 means 1 point = $0.10).
+            If couponType is 'percentage', this is the percentage value (e.g., 0.10 means 1 point = 0.10% off the total basket).
+          example: 0.10
         amountCurrency:
           $ref: '#/components/schemas/Currency'
+          description: Required if couponType is 'fixed_amount'. Denominates the currency of the valuePerSinglePoint.
         createdAt:
           type: string
           format: date-time

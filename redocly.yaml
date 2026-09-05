@@ -17,3 +17,6 @@ apis:
   points@v1:
     root: ./openapi/points-v1.yaml
     output: ./dist/points-v1.yaml
+  properties@v1:
+    root: ./openapi/properties-v1.yaml
+    output: ./dist/properties-v1.yaml

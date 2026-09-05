@@ -1,6 +1,6 @@
 openapi: 3.1.1
 info:
-  title: Auth Service API
+  title: Authentication and User Management API
   version: 1.0.0
   description: |
     Authentication and user-management service for Loyalty Engine.

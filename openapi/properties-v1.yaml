@@ -1,0 +1,371 @@
+openapi: 3.1.2
+
+info:
+  title: Properties API
+  version: 1.0.0
+  summary: Properties API
+  description: |
+    API for managing properties and property user associations within the Loyalty Engine.
+
+    Source code: https://github.com/loyaltyengine/properties-service
+  contact:
+    name: Properties API Support
+    url: https://www.loyaltyengine.org/support
+    email: support@loyaltyengine.org
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://api.loyaltyengine.org
+    description: Live server
+
+paths:
+  /v1/properties:
+    post:
+      summary: Create a new property
+      description: |
+        Creates a new property with the specified details. The user who creates the property
+        is automatically assigned the OWNER role for that property.
+      operationId: createProperty
+      tags:
+        - Properties
+      security:
+        - bearerAuth: []
+        - apiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePropertyRequest'
+      responses:
+        '201':
+          description: Property created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyResponse'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+
+  /v1/properties/{propertyId}/users/{userId}:
+    get:
+      summary: Get property user association
+      description: |
+        Retrieves the association between a specific user and a property,
+        including the user's role and assignment details.
+      operationId: getPropertyUser
+      tags:
+        - Property Users
+      security:
+        - bearerAuth: []
+        - apiKey: []
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          description: The unique identifier of the property
+          schema:
+            $ref: '#/components/schemas/PropertyId'
+        - name: userId
+          in: path
+          required: true
+          description: The unique identifier of the user
+          schema:
+            $ref: '#/components/schemas/UserId'
+      responses:
+        '200':
+          description: Property user association found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyUserResponse'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+
+  /v1/properties/{propertyId}:
+    post:
+      summary: Create property user association
+      description: |
+        Associates a user with a property by assigning them a specific role.
+        The user making the request is recorded as the assigner.
+      operationId: createPropertyUser
+      tags:
+        - Property Users
+      security:
+        - bearerAuth: []
+        - apiKey: []
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          description: The unique identifier of the property
+          schema:
+            $ref: '#/components/schemas/PropertyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePropertyUserRequest'
+      responses:
+        '201':
+          description: Property user association created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyUserResponse'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '404':
+          $ref: './shared/responses/NotFound.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token authentication
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key authentication
+
+  schemas:
+    Property:
+      type: object
+      description: Object holding property information
+      properties:
+        propertyId:
+          $ref: '#/components/schemas/PropertyId'
+        name:
+          $ref: '#/components/schemas/PropertyName'
+        description:
+          $ref: '#/components/schemas/PropertyDescription'
+        createdByUserId:
+          $ref: '#/components/schemas/UserId'
+        email:
+          $ref: '#/components/schemas/PropertyEmail'
+        domain:
+          $ref: '#/components/schemas/PropertyDomain'
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-06-05T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-06-05T15:45:00Z"
+
+    CreatePropertyRequest:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/PropertyName'
+        description:
+          $ref: '#/components/schemas/PropertyDescription'
+        createdByUserId:
+          $ref: '#/components/schemas/UserId'
+        email:
+          $ref: '#/components/schemas/PropertyEmail'
+        domain:
+          $ref: '#/components/schemas/PropertyDomain'
+      required:
+        - name
+        - createdByUserId
+        - email
+
+    PropertyResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            property:
+              $ref: '#/components/schemas/Property'
+
+    PropertyName:
+      type: string
+      description: |
+        The name of the property
+      example: Loyalty Engine App
+
+    PropertyId:
+      type: string
+      description: |
+        Property unique identifier (UUID)
+      example: "550e8400-e29b-41d4-a716-446655440000"
+
+    PropertyStatus:
+      type: string
+      enum: [ACTIVE, SUSPENDED, ARCHIVED]
+      description: |
+        The status of the property
+      example: ACTIVE
+
+    PropertyDescription:
+      type: string
+      description: |
+        A detailed description of the property
+      example: "Main loyalty program application for mobile users"
+
+    PropertyEmail:
+      type: string
+      format: email
+      description: |
+        Main contact email for the property
+      example: "contact@loyaltyengine.org"
+
+    PropertyDomain:
+      type: string
+      description: |
+        The domain associated with the property
+      example: "loyaltyengine.org"
+
+    UserId:
+      type: string
+      description: |
+        User unique identifier (UUID)
+      example: "550e8400-e29b-41d4-a716-446655440000"
+
+    ErrorType:
+        type: string
+        enum:
+          - invalid_request
+          - unauthorized
+          - forbidden
+          - not_found
+          - validation_error
+          - internal_server_error
+          - conflict_error
+    ErrorResponse:
+      type: object
+      description: A standard error response
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            error:
+              $ref: '#/components/schemas/ErrorType'
+              description: The error type
+            description:
+              type: string
+              description: A human-readable description of the error
+            details:
+              type: array
+              items:
+                $ref: '#/components/schemas/ErrorDetail'
+
+          required:
+            - error
+    ErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+          description: The field related to the error
+        issue:
+          type: string
+          description: A description of the issue with the field
+      required:
+        - field
+        - issue
+
+    PropertyType:
+      type: string
+      enum: [WEBSITE, APP, ORGANIZATION, OTHER]
+      description: |
+        The type of property
+      example: APP
+
+    UserRole:
+      type: string
+      enum: [OWNER, ADMIN, EDITOR, VIEWER]
+      description: |
+        The role of a user within a property
+      example: VIEWER
+
+    PropertyUser:
+      type: object
+      description: |
+        Object holding property user association information
+      properties:
+        id:
+          type: string
+          description: |
+            Property user unique identifier (UUID)
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        propertyId:
+          $ref: '#/components/schemas/PropertyId'
+        userId:
+          $ref: '#/components/schemas/UserId'
+        role:
+          $ref: '#/components/schemas/UserRole'
+        assignedAt:
+          type: string
+          format: date-time
+          description: |
+            Timestamp when the user was assigned to the property
+          example: "2026-06-05T12:00:00Z"
+        assignedByUserId:
+          $ref: '#/components/schemas/UserId'
+        updatedAt:
+          type: string
+          format: date-time
+          description: |
+            Timestamp when the property user association was last updated
+          example: "2026-06-05T15:45:00Z"
+        property:
+          $ref: '#/components/schemas/Property'
+
+    CreatePropertyUserRequest:
+      type: object
+      description: |
+        Object holding information to create a property user association
+      properties:
+        propertyId:
+          $ref: '#/components/schemas/PropertyId'
+        userId:
+          $ref: '#/components/schemas/UserId'
+        role:
+          $ref: '#/components/schemas/UserRole'
+        assignedByUserId:
+          $ref: '#/components/schemas/UserId'
+      required:
+        - propertyId
+        - userId
+        - assignedByUserId
+
+    UpdatePropertyUserRequest:
+      type: object
+      description: |
+        Object holding information to update a property user association
+      properties:
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    PropertyUserResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            propertyUser:
+              $ref: '#/components/schemas/PropertyUser'
+
+    PropertyUserListResponse:
+      allOf:
+        - $ref: './shared/schemas/Response.yaml'
+        - type: object
+          properties:
+            propertyUsers:
+              type: array
+              items:
+                $ref: '#/components/schemas/PropertyUser'

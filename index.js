@@ -6,8 +6,6 @@ import "dotenv/config";
 
 const app = express();
 
-const port = process.env.PORT || 3000;
-
 app.get("/api/:filename", (req, res) => {
 	const filePath = path.join(process.cwd(), "dist", req.params.filename);
 	if (fs.existsSync(filePath)) {
@@ -21,21 +19,36 @@ app.get("/api/:filename", (req, res) => {
 app.use(
 	"/",
 	apiReference({
-		theme: "purple",
+		pageTitle: "Loyalty Engine API Reference",
+		theme: "elysiajs",
+		layout: "classic",
+		defaultOpenAllTags: true,
+		hideTestRequestButton: true,
+		hideClientButton: false,
 		pathRouting: {
 			basePath: "/",
 		},
 		sources: [
 			{
-				title: "Authentication v1",
-				slug: "auth-v1",
+				title: "Authentication and Users API",
+				slug: "auth",
 				url: "/api/auth-v1.yaml",
 				default: true,
 			},
 			{
-				title: "Coupons v1",
-				slug: "coupons-v1",
+				title: "Properties API",
+				slug: "properties",
+				url: "/api/properties-v1.yaml",
+			},
+			{
+				title: "Coupons API",
+				slug: "coupons",
 				url: "/api/coupons-v1.yaml",
+			},
+			{
+				title: "Points API",
+				slug: "points",
+				url: "/api/points-v1.yaml",
 			},
 		],
 	}),

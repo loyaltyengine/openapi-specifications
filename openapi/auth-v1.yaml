@@ -3,22 +3,20 @@ info:
   title: Authentication and User Management API
   version: 1.0.0
   description: |
-    Authentication and user-management service for Loyalty Engine.
+    Authentication and user management API for Loyalty Engine.
 
-    This service provides functionality for:
-      - User login (basic credentials + JWT issuance)
-      - User registration
-      - OAuth2 / third-party authentication flows
-      - Property-level API keys management
-      - User profile and user management (read, update, deactivate)
+    Provides functionality for:
+      - User authentication and authorization
+      - JWT access and refresh tokens generation
+      - OAuth2 Authentication (Google, Github coming soon)
+      - API keys generation and management
+      - Active user management
 
-    Use these endpoints to authenticate callers, manage account access,
-    and obtain credentials for calling other Loyalty Engine services.
     Source code: https://github.com/loyaltyengine/auth-service
   contact:
-    name: Loyalty Engine Auth Support
-    url: https://www.loyaltyengine.org/support
-    email: support@loyaltyengine.org
+    name: Loyalty Engine
+    url: https://www.loyaltyengine.org
+    email: hello@loyaltyengine.org
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -26,8 +24,6 @@ info:
 servers:
   - url: https://api.loyaltyengine.org
     description: Live server
-  - url: https://staging-api.loyaltyengine.org
-    description: Staging server
 
 tags:
   - name: Authentication
@@ -91,6 +87,23 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/RefreshSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
+  /auth/v1/verify-token:
+    get:
+      tags:
+        - Authentication
+      summary: Verify JWT token
+      description: |
+        Verify requested JWT token. Requires authentication via Bearer token.
+      operationId: verifyToken
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
         '400':
           $ref: './shared/responses/BadRequest.yaml'
         '401':
@@ -505,6 +518,17 @@ components:
       name: X-API-Key
       description: API key for property-level authentication
   responses:
+    SuccessResponse:
+      description: Successful response
+      content:
+        application/json:
+          schema:
+            $ref: './shared/schemas/Response.yaml'
+          example:
+            status:
+              code: 200
+              message: "Success"
+           
     GetUserSuccess:
       description: Successful user retrieval
       content:

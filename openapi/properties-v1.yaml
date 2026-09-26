@@ -6,12 +6,18 @@ info:
   summary: Properties API
   description: |
     API for managing properties and property user associations within the Loyalty Engine.
+    A property can represent a mobile app, website, organization etc. The generated property ID is used
+    to identify the property in other services.
+    
+    Provide functionality for:
+      - Property creation and management
+      - Property user associations management
 
     Source code: https://github.com/loyaltyengine/properties-service
   contact:
-    name: Properties API Support
-    url: https://www.loyaltyengine.org/support
-    email: support@loyaltyengine.org
+    name: Loyalty Engine
+    url: https://www.loyaltyengine.org
+    email: hello@loyaltyengine.org
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -21,7 +27,7 @@ servers:
     description: Live server
 
 paths:
-  /v1/properties:
+  /properties-api/v1/properties:
     post:
       summary: Create a new property
       description: |
@@ -51,7 +57,7 @@ paths:
         '500':
           $ref: './shared/responses/InternalServerError.yaml'
 
-  /v1/properties/{propertyId}/users/{userId}:
+  /properties-api/v1/properties/{propertyId}/users/{userId}/assignments:
     get:
       summary: Get property user association
       description: |
@@ -88,9 +94,9 @@ paths:
         '500':
           $ref: './shared/responses/InternalServerError.yaml'
 
-  /v1/properties/{propertyId}:
+  /properties-api/v1/properties/{propertyId}/assignments:
     post:
-      summary: Create property user association
+      summary: Assign user to property
       description: |
         Associates a user with a property by assigning them a specific role.
         The user making the request is recorded as the assigner.
@@ -323,16 +329,12 @@ components:
           description: |
             Timestamp when the property user association was last updated
           example: "2026-06-05T15:45:00Z"
-        property:
-          $ref: '#/components/schemas/Property'
 
     CreatePropertyUserRequest:
       type: object
       description: |
         Object holding information to create a property user association
       properties:
-        propertyId:
-          $ref: '#/components/schemas/PropertyId'
         userId:
           $ref: '#/components/schemas/UserId'
         role:
@@ -340,7 +342,6 @@ components:
         assignedByUserId:
           $ref: '#/components/schemas/UserId'
       required:
-        - propertyId
         - userId
         - assignedByUserId
 

@@ -5,11 +5,21 @@ info:
   version: 1.0.0
   summary: Points API
   description: |
-    Points API
+    Points API for Loyalty Engine.
+
+    Provides functionality for:
+      - Granting points to customers
+      - Retrieving customer points with pagination
+      - Creating and managing point types
+      - Creating redemption rules
+      - Processing customer redemptions
+      - Tracking point transactions
+
+    Source code: https://github.com/loyaltyengine/points-service
   contact:
-    name: Points API Support
-    url: https://www.loyaltyengine.org/support
-    email: support@loyaltyengine.org
+    name: Loyalty Engine
+    url: https://www.loyaltyengine.org
+    email: hello@loyaltyengine.org
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -19,17 +29,203 @@ servers:
     description: Live server
 
 paths:
-  /points:
-    get:
-      summary: List all points
+  /points-api/v1/properties/{propertyId}/customers/{customerId}/points:
+    post:
+      summary: Grant points to a customer
       description: |
-        Retrieve all points for a property
-      operationId: listPoints
+        Grant points to a customer for a specific property
+      operationId: grantPoints
       security:
         - bearerAuth: []
         - apiKey: []
       tags:
         - points
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Property ID
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Customer ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePointRequest'
+      responses:
+        '201':
+          description: Points granted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointResponse'
+    get:
+      summary: List customer points
+      description: |
+        Retrieve all points for a specific customer and property
+      operationId: getCustomerPoints
+      security:
+        - bearerAuth: []
+        - apiKey: []
+      tags:
+        - points
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Property ID
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Customer ID
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Page number
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+          description: Page size
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            default: createdAt
+          description: Sort field
+        - name: order
+          in: query
+          required: false
+          schema:
+            type: string
+            default: asc
+          description: Sort order (asc or desc)
+      responses:
+        '200':
+          description: Points retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointsResponse'
+
+  /points-api/v1/properties/{propertyId}/types:
+    post:
+      summary: Create a point type
+      description: |
+        Create a new point type for a property
+      operationId: createPointType
+      security:
+        - bearerAuth: []
+        - apiKey: []
+      tags:
+        - point-types
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Property ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePointTypeRequest'
+      responses:
+        '201':
+          description: Point type created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointTypeResponse'
+
+  /points-api/v1/properties/{propertyId}/redemptions/rules:
+    post:
+      summary: Create a redemption rule
+      description: |
+        Create a new redemption rule for a property
+      operationId: createRedemptionRule
+      security:
+        - bearerAuth: []
+        - apiKey: []
+      tags:
+        - redemptions
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Property ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRedemptionRuleRequest'
+      responses:
+        '201':
+          description: Redemption rule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedemptionRuleResponse'
+
+  /points-api/v1/properties/{propertyId}/customers/{customerId}/redemptions:
+    post:
+      summary: Create a redemption
+      description: |
+        Create a new redemption for a customer
+      operationId: createRedemption
+      security:
+        - bearerAuth: []
+        - apiKey: []
+      tags:
+        - redemptions
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Property ID
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Customer ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRedemptionRequest'
+      responses:
+        '201':
+          description: Redemption created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RedemptionResponse'
 
 components:
   securitySchemes:

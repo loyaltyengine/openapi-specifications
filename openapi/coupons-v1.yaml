@@ -1,18 +1,25 @@
 openapi: 3.1.1
 info:
-  title: Coupons Service API
+  title: Coupons API
   version: 1.0.0
-  summary: Coupons and redemptions management for Loyalty Engine
+  summary: Coupons API
   description: |
-    The Coupons service provides enterprise-grade coupon management for Loyalty Engine.
-    It supports coupon creation, retrieval, lifecycle control, and redemption processing for
-    properties and customer accounts.
-    Use these endpoints to manage promotional coupons, coupon status, and redemption events
-    across Loyalty Engine properties.
+    Coupons API for Loyalty Engine.
+
+    Provides functionality for:
+      - Creating coupons for customers within properties
+      - Listing active customer coupons with pagination support
+      - Retrieving specific coupon details by coupon code
+      - Processing coupon redemptions with cart validation if provided
+      - Listing active property coupons with filtering
+      - Cancelling coupons
+      - Retrieving coupon redemption details
+
+    Source code: https://github.com/loyaltyengine/coupons-service
   contact:
-    name: Coupons API Support
-    url: https://www.loyaltyengine.org/support
-    email: support@loyaltyengine.org
+    name: Loyalty Engine
+    url: https://www.loyaltyengine.org
+    email: hello@loyaltyengine.org
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0
@@ -28,7 +35,7 @@ tags:
     description: Process coupon redemptions and retrieve redemption details.
 
 paths:
-  /coupons/v1/properties/{propertyId}/coupons:
+  /coupons-api/v1/properties/{propertyId}/coupons:
     get:
       summary: List active property coupons
       description: |
@@ -101,7 +108,7 @@ paths:
           $ref: './shared/responses/NotFound.yaml'
         '500':
           $ref: './shared/responses/InternalServerError.yaml'
-  /coupons/v1/properties/{propertyId}/customers/{customerId}/coupons:
+  /coupons-api/v1/properties/{propertyId}/customers/{customerId}/coupons:
     get:
       summary: List active customer coupons
       description: |
@@ -210,7 +217,7 @@ paths:
           $ref: './shared/responses/Forbidden.yaml'
         '500':
           $ref: './shared/responses/InternalServerError.yaml'
-  /coupons/v1/properties/{propertyId}/customers/{customerId}/coupons/{couponCode}:
+  /coupons-api/v1/properties/{propertyId}/customers/{customerId}/coupons/{couponCode}:
     get:
       summary: Get coupon details
       description: |
@@ -293,7 +300,7 @@ paths:
           $ref: './shared/responses/NotFound.yaml'
         '500':
           $ref: './shared/responses/InternalServerError.yaml'
-  /coupons/v1/properties/{propertyId}/customers/{customerId}/coupons/{couponCode}/redemptions:
+  /coupons-api/v1/properties/{propertyId}/customers/{customerId}/coupons/{couponCode}/redemptions:
     post:
       summary: Redeem coupon
       description: |
@@ -348,7 +355,7 @@ paths:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - redemptions
+        - Redemptions
       parameters:
         - name: propertyId
           in: path

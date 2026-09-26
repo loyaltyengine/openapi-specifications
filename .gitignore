@@ -4,3 +4,4 @@ dist/
 generated/
 .vscode
 .idea
+target/

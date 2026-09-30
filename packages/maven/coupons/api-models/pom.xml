@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://apache.org"
-    xmlns:xsi="http://w3.org"
-    xsi:schemaLocation="http://apache.org http://apache.org">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.loyaltyengine.points</groupId>
-    <artifactId>points-client</artifactId>
+    <groupId>org.loyaltyengine.coupons</groupId>
+    <artifactId>api-models</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
@@ -60,9 +60,13 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/../../../../dist/points-v1.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/../../../../dist/coupons-v1.yaml</inputSpec>
 
                             <generatorName>java</generatorName>
+                            <typeMappings>
+                                <typeMapping>DateTime=String</typeMapping>
+                                <typeMapping>date-time=String</typeMapping>
+                            </typeMappings>
                             <skipValidateSpec>true</skipValidateSpec>
 
                             <openapiNormalizer>
@@ -74,9 +78,9 @@
                                 <serializationLibrary>jackson</serializationLibrary>
                                 <openApiNullable>false</openApiNullable>
                                 <useJakartaEe>true</useJakartaEe>
-                                <modelPackage>org.loyaltyengine.points.client.models</modelPackage>
-                                <apiPackage>org.loyaltyengine.points.client.api</apiPackage>
-                                <invokerPackage>org.loyaltyengine.points.client</invokerPackage>
+                                <modelPackage>org.loyaltyengine.coupons.v1.model</modelPackage>
+                                <apiPackage>org.loyaltyengine.coupons.v1.api</apiPackage>
+                                <invokerPackage>org.loyaltyengine.coupons.v1</invokerPackage>
                                 <useBeanValidation>true</useBeanValidation>
                                 <performBeanValidation>false</performBeanValidation>
                             </configOptions>

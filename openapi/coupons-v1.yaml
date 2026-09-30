@@ -180,9 +180,9 @@ paths:
         '500':
           $ref: './shared/responses/InternalServerError.yaml'
     post:
-      summary: Create a new coupon
+      summary: Grant a coupon to a customer
       description: |
-        Create a new coupon for a customer within the specified property.
+        Grant a new coupon for a customer within the specified property.
       operationId: createCoupon
       security:
         - bearerAuth: []
@@ -207,7 +207,7 @@ paths:
             schema:
               $ref: '#/components/schemas/BaseCreateCouponRequest'
       responses:
-        '201':
+        '200':
           $ref: '#/components/responses/CreateCouponResponse'
         '400':
           $ref: './shared/responses/BadRequest.yaml'

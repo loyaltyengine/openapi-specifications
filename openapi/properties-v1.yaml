@@ -252,6 +252,7 @@ components:
           - validation_error
           - internal_server_error
           - conflict_error
+
     ErrorResponse:
       type: object
       description: A standard error response

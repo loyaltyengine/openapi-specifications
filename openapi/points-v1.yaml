@@ -10,8 +10,8 @@ info:
     Provides functionality for:
       - Granting points to customers
       - Retrieving customer points with pagination
-      - Creating and managing point types
-      - Creating redemption rules
+      - Creating and managing point templates (reusable point configurations with default values)
+      - Creating redemption rules (configuration rules specifying the value of a single point used to calculate redemptions)
       - Processing customer redemptions
       - Tracking point transactions
 
@@ -28,18 +28,27 @@ servers:
   - url: https://api.loyaltyengine.org
     description: Live server
 
+tags:
+  - name: Points & Point Templates
+    description: Manage points
+  - name: Redemptions & Redemption Rules
+    description: Manage redemptions
+  - name: Transactions
+    description: Manage Transactions
+
 paths:
   /points-api/v1/properties/{propertyId}/customers/{customerId}/points:
     post:
       summary: Grant points to a customer
       description: |
-        Grant points to a customer for a specific property
+        Grant points to a customer for a specific property. Points can be granted directly by providing `numberOfPoints`, or by using a point template via `pointTemplateId`.
+        If a 'pointTemplateId' is provided, its default values will be used, but they can be overridden by explicitly providing `numberOfPoints`, `validFrom`, or `expireAt` in the request.
       operationId: grantPoints
       security:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - points
+        - Points & Point Templates
       parameters:
         - name: propertyId
           in: path
@@ -60,12 +69,16 @@ paths:
             schema:
               $ref: '#/components/schemas/CreatePointRequest'
       responses:
-        '201':
-          description: Points granted successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PointResponse'
+        '200':
+          $ref: '#/components/responses/PointSuccess'
+        '400':
+          $ref: './shared/responses/BadRequest.yaml'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '429':
+          $ref: "#/components/responses/RateLimitError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     get:
       summary: List customer points
       description: |
@@ -75,7 +88,7 @@ paths:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - points
+        - Points & Point Templates
       parameters:
         - name: propertyId
           in: path
@@ -125,17 +138,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/PointsResponse'
 
-  /points-api/v1/properties/{propertyId}/types:
+  /points-api/v1/properties/{propertyId}/point-templates:
     post:
-      summary: Create a point type
+      summary: Create a point template
       description: |
-        Create a new point type for a property
-      operationId: createPointType
+        Create a new point template for a property
+      operationId: createPointTemplate
       security:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - point-types
+        - Points & Point Templates
       parameters:
         - name: propertyId
           in: path
@@ -148,26 +161,30 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatePointTypeRequest'
+              $ref: '#/components/schemas/CreatePointTemplateRequest'
       responses:
         '201':
-          description: Point type created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PointTypeResponse'
+          $ref: '#/components/responses/PointTemplateSuccess'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: './shared/responses/Unauthorized.yaml'
+        '500':
+          $ref: './shared/responses/InternalServerError.yaml'
 
-  /points-api/v1/properties/{propertyId}/redemptions/rules:
+  /points-api/v1/properties/{propertyId}/redemption-rules:
     post:
       summary: Create a redemption rule
       description: |
-        Create a new redemption rule for a property
+        Create a new redemption rule for a property.
+        A redemption rule is a configuration rule specifying the value of a single point used to calculate redemptions.
+        For example, 50 points for a 10% 'PERCENTAGE' coupon type.
       operationId: createRedemptionRule
       security:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - redemptions
+        - Redemptions & Redemption Rules
       parameters:
         - name: propertyId
           in: path
@@ -183,23 +200,29 @@ paths:
               $ref: '#/components/schemas/CreateRedemptionRuleRequest'
       responses:
         '201':
-          description: Redemption rule created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RedemptionRuleResponse'
+          $ref: '#/components/responses/RedemptionRuleSucess'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+           $ref: '#/components/responses/AuthenticationError' # By the auth service
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '429':
+          $ref: "#/components/responses/RateLimitError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
   /points-api/v1/properties/{propertyId}/customers/{customerId}/redemptions:
     post:
-      summary: Create a redemption
+      summary: Redeem points for a customer
       description: |
-        Create a new redemption for a customer
+        Points redemption for a customer. Coupons granted via Point API do not support cart eligibility and a default usage limit of `1`.
       operationId: createRedemption
       security:
         - bearerAuth: []
         - apiKey: []
       tags:
-        - redemptions
+        - Redemptions & Redemption Rules
       parameters:
         - name: propertyId
           in: path
@@ -220,12 +243,18 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateRedemptionRequest'
       responses:
-        '201':
-          description: Redemption created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RedemptionResponse'
+        '200':
+          $ref: '#/components/responses/RedemptionSucess'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+           $ref: '#/components/responses/AuthenticationError' # By the auth service
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '429':
+          $ref: "#/components/responses/RateLimitError"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
 components:
   securitySchemes:
@@ -239,13 +268,91 @@ components:
       in: header
       name: X-API-Key
       description: API key authentication
+  responses:
+    PointSuccess:
+      description: Point success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PointResponse'
+    
+    PointTemplateSuccess:
+      description: Point templates success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PointTemplateResponse'
+
+    RedemptionRuleSucess:
+      description: Redemption rule success
+      content: 
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RedemptionRuleResponse'
+  
+    RedemptionSucess:
+      description: Redemption success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RedemptionResponse'
+
+    # Error responses
+    BadRequestError:
+      description: Bad request error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DetailsErrorResponse"
+
+    NotFoundError:
+      description: Not found error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ConflictError:
+      description: Conflict error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    AuthenticationError:
+      description: Authentication error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    RateLimitError:
+      description: Too many requests error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ForbiddenError:
+      description: Forbidden error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
 
   schemas:
     CreatePointRequest:
       type: object
       properties:
-        pointTypeId:
-          $ref: '#/components/schemas/PointTypeId'
+        pointTemplateId:
+          $ref: '#/components/schemas/PointTemplateId'
         numberOfPoints:
           $ref: '#/components/schemas/NumberOfPoints'
         validFrom:
@@ -254,8 +361,7 @@ components:
           $ref: '#/components/schemas/ExpireAt'
         description:
           $ref: '#/components/schemas/PointDescription'
-      required:
-        - numberOfPoints
+
 
     PointResponse:
       allOf:
@@ -279,7 +385,18 @@ components:
     Point:
       type: object
       description: |
-        Points entry
+        Points
+      required:
+        - pointId
+        - customerId
+        - propertyId
+        - numberOfPoints
+        - remainingPoints
+        - createdAt
+        - status
+        - updatedAt
+        - validFrom
+        - expireAt
       properties:
         pointId:
           $ref: '#/components/schemas/PointId'
@@ -287,8 +404,8 @@ components:
           $ref: './shared/schemas/CustomerId.yaml'
         propertyId:
           $ref: './shared/schemas/PropertyId.yaml'
-        pointTypeId:
-          $ref: '#/components/schemas/PointTypeId'
+        pointTemplateId:
+          $ref: '#/components/schemas/PointTemplateId'
         numberOfPoints:
           $ref: '#/components/schemas/NumberOfPoints'
         remainingPoints:
@@ -319,7 +436,8 @@ components:
       properties:
         transactionId:
           type: string
-          example: "tx_88f92a"
+          format: uuid
+          example: "5a3d8d0b-9f0b-4f6b-9c20-5a7d8c0b5c8d"
         propertyId:
           $ref: './shared/schemas/PropertyId.yaml'
         customerId:
@@ -332,50 +450,79 @@ components:
           $ref: '#/components/schemas/NumberOfPoints'
         reason:
           type: string
-          enum: [GRANT, REDEMPTION, EXPIRATION, CANCELLED]
+          enum: [GRANT, REDEMPTION, EXPIRATION, CANCELLED, OTHER]
         pointId:
           $ref: '#/components/schemas/PointId'
         createdAt:
           type: string
           format: date-time
+
     # PointType
-    PointType:
+    PointTemplate:
       type: object
       description: |
         Point type
+      required:
+        - pointTemplateId
+        - propertyId
+        - name
+        - updatedAt
+        - createdAt
       properties:
-        pointTypeId:
-          $ref: '#/components/schemas/PointTypeId'
+        pointTemplateId:
+          $ref: '#/components/schemas/PointTemplateId'
         propertyId:
           $ref: './shared/schemas/PropertyId.yaml'
         name:
           type: string
-          example: "referral_reward"
+          example: "Signup points"
+        validNumberOfDays:
+          type: integer
+          example: 30
+          minimum: 1
+          description: Optional default number of days the points remain valid after being granted
+        description:
+          type: string
+          example: "Grant points on signup"
         numberOfPoints:
           $ref: '#/components/schemas/NumberOfPoints'
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-06-05T12:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-06-05T15:45:00Z"
 
-    CreatePointTypeRequest:
+    CreatePointTemplateRequest:
       type: object
+      required:
+        - name
       properties:
         name:
           type: string
-          example: "referral_reward"
+          description: Unique name or identifier for the template.
+          example: "Signup points"
         description:
           type: string
-          example: "Referral reward"
+          example: "Grant points on customer registration"
+        validNumberOfDays:
+          type: integer
+          example: 30
+          minimum: 1
+          description: Optional default number of days the points remain valid after being granted (can be overridden by explicit validFrom/expireAt in Grant points request).
         numberOfPoints:
           $ref: '#/components/schemas/NumberOfPoints'
-      required:
-        - numberOfPoints
-        - name
+          description: Optional default number of points to grant (can be overridden by explicit numberOfPoints in Grant points request).
 
-    PointTypeResponse:
+    PointTemplateResponse:
       allOf:
         - $ref: './shared/schemas/Response.yaml'
         - type: object
           properties:
             pointType:
-              $ref: '#/components/schemas/PointType'
+              $ref: '#/components/schemas/PointTemplate'
 
     # Redemption
     Redemption:
@@ -385,25 +532,41 @@ components:
         redemptionId:
           type: string
           example: "red_33a11b"
+        redemptionRuleId:
+          $ref: '#/components/schemas/RedemptionRuleId'
         propertyId:
           $ref: './shared/schemas/PropertyId.yaml'
         customerId:
           $ref: './shared/schemas/CustomerId.yaml'
         redemptionType:
           $ref: '#/components/schemas/RedemptionType'
-        targetId:
+        couponCode:
           type: string
-          description: Generic pointer to the generated reward. If type is COUPON, this holds the couponId.
-          example: "5a3d8d0b-9f0b-4f6b-9c20-5a7d8c0b5c8d"
-        points:
+          description: Coupon code of the coupon granted for 'COUPON' redemption type.
+          example: "SWPETNLPIDBNWFXY"
+        totalDebitedPoints:
+          type: integer
+          example: 5
+          description: Total number of points debited.
+        calculatedValue:
+          type: number
+          example: 10
+          description: Calculated value of the redemption. For example, 10% of 'PERCENTAGE' of totalDebitedPoints
+        numberOfPoints:
           type: integer
           minimum: 0
           example: 10
-          description: Number of individual points points granted or spent.
+          description: Number of individual points points to redeem. This value may be different from the requested value based on the maximum redemable points.
+        totalRemainingPoints:
+          type: integer
+          minimum: 0
+          example: 5
+          description: Remaining number of points after the redemption.
         createdAt:
           type: string
           format: date-time
-    
+          example: "2026-06-05T12:00:00Z"
+
     RedemptionResponse:
       allOf:
         - $ref: './shared/schemas/Response.yaml'
@@ -415,48 +578,51 @@ components:
     CreateRedemptionRequest:
       type: object
       description: A redemption request
+      required:
+        - redemptionRuleId
+        - numberOfPoints
       properties:
-        redemptionType:
-          $ref: '#/components/schemas/RedemptionType'
+        redemptionRuleId:
+          $ref: '#/components/schemas/RedemptionRuleId'
         numberOfPoints:
           type: integer
           minimum: 0
           example: 10
-          description: Number of individual points points granted or spent.
+          description: Number of points to redeem.
 
     # Redemption rules
     RedemptionRule:
       type: object
-      description: Configuration rule specifying the value metric of a single point to unlock or calculate dynamic redemptions.
+      description: Configuration rule specifying the value of a single point used to calculate redemptions.
       required:
+        - redemptionRuleId
         - propertyId
-        - pointTypeId
         - redemptionType
         - valuePerSinglePoint
         - couponType
       properties:
+        redemptionRuleId:
+          $ref: '#/components/schemas/RedemptionRuleId'
         propertyId:
           $ref: './shared/schemas/PropertyId.yaml'
-        pointTypeId:
-          $ref: '#/components/schemas/PointTypeId'
         redemptionType:
           $ref: '#/components/schemas/RedemptionType'
         couponType:
           type: string
-          description: Dictates if the single point value represents a monetary fiat currency weight or a fractional percentage weight.
+          description: The type of the coupon for a 'COUPON' redemption type.
           enum: [percentage, fixed_amount]
         valuePerSinglePoint:
           type: number
           format: double
           minimum: 0
           description: >
-            The weight of 1 single point. 
+            The weight of 1 single point.
             If couponType is 'fixed_amount', this is the fiat monetary value (e.g., 0.10 means 1 point = $0.10).
             If couponType is 'percentage', this is the percentage value (e.g., 0.10 means 1 point = 0.10% off the total basket).
           example: 0.10
         amountCurrency:
           $ref: '#/components/schemas/Currency'
-          description: Required if couponType is 'fixed_amount'. Denominates the currency of the valuePerSinglePoint.
+          description: Required if couponType is 'fixed_amount'.
         createdAt:
           type: string
           format: date-time
@@ -475,21 +641,17 @@ components:
     CreateRedemptionRuleRequest:
       type: object
       properties:
-        propertyId:
-          $ref: './shared/schemas/PropertyId.yaml'
-        pointTypeId:
-          $ref: '#/components/schemas/PointTypeId'
         redemptionType:
           $ref: '#/components/schemas/RedemptionType'
         couponType:
           type: string
           enum: [percentage, fixed_amount]
-        numberOfPoints:
+          example: percentage
+        couponValidNumberOfDays:
           type: integer
-          minimum: 0
-          example: 10
-          description: Number of points required
-        equivalentValue:
+          description: Number of day the coupon remains valid after being granted.
+          example: 30
+        valuePerSinglePoint:
           type: number
           minimum: 0
           example: 10
@@ -507,24 +669,34 @@ components:
       description: |
         Coupon currency. ISO 4217 currency code.
       example: USD
-    
+
     RedemptionType:
+      description: Change points for a specific redemption type
       type: string
       enum: [COUPON, CASHBACK]
       example: "COUPON"
 
+    RedemptionRuleId:
+      type: string
+      format: uuid
+      description: Unique identifier of the redemption rule.
+      example: "5a3d8d0b-9f0b-4f6b-9c20-5a7d8c0b5c8d"
+
     PointDescription:
       type: string
+      example: "Point description"
 
-    PointTypeId:
+    PointTemplateId:
       type: string
-      description: Unique identifier linking to administrative configuration templates.
-      example: "pt_type_ref_01"
+      format: uuid
+      description: Unique identifier of the point template.
+      example: "5a3d8d0b-9f0b-4f6b-9c20-5a7d8c0b5c8d"
 
     PointId:
       type: string
-      description: Unique transactional reference tracking an active point entry.
-      example: "pt_992a8f"
+      format: uuid
+      description: Unique identifier of the point.
+      example: "5a3d8d0b-9f0b-4f6b-9c20-5a7d8c0b5c8d"
 
     ExpireAt:
       type: string
@@ -535,6 +707,7 @@ components:
       type: string
       format: date-time
       example: 2026-06-05T12:50:00Z
+
     ErrorType:
         type: string
         enum:
@@ -546,6 +719,7 @@ components:
           - validation_error
           - internal_server_error
           - conflict_error
+
     ErrorResponse:
       description: A standard error response
       allOf:
@@ -562,9 +736,19 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/ErrorDetail'
-
           required:
             - error
+    DetailsErrorResponse:
+      allOf:
+        - $ref: "#/components/schemas/ErrorResponse"
+        - type: object
+          properties:
+            details:
+              type: array
+              description: List of error details.
+              items:
+                $ref: "#/components/schemas/ErrorDetail"
+
     ErrorDetail:
       type: object
       properties:

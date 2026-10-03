@@ -1,5 +1,0 @@
-description: Internal server error - Unexpected condition encountered
-content:
-  application/json:
-    schema:
-      $ref: '../schemas/Response.yaml'

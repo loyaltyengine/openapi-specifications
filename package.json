@@ -5,13 +5,15 @@
   "description": "OpenAPI Specifications",
   "main": "index.js",
   "scripts": {
+    "dev": "npm run bundle && wrangler dev",
+    "deploy": "wrangler deploy",
     "test": "echo \"Error: no test specified\" && exit 1",
     "bundle": "redocly bundle",
     "build": "npm run bundle",
     "lint:redocly": "redocly lint",
     "codegen:java": "openapi-generator-cli generate --skip-validate-spec -g java -o ./generated/java -i",
     "codegen:typescript": "openapi-generator-cli generate --skip-validate-spec -g typescript-fetch -o ./generated/typescript -i",
-    "start": "npm run bundle && node index.js"
+    "start": "npm run bundle && wrangler dev"
   },
   "repository": {
     "type": "git",
@@ -30,5 +32,8 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "yaml": "^2.8.2"
+  },
+  "devDependencies": {
+    "wrangler": "^4.147.0"
   }
 }

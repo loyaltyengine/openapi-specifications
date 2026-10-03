@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/loyaltyengine/openapi-specifications#readme",
   "dependencies": {
-    "@openapitools/openapi-generator-cli": "^2.25.2",
     "@redocly/cli": "^2.12.3",
     "@scalar/express-api-reference": "^0.8.26",
     "dotenv": "^17.2.3",

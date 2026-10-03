@@ -88,3 +88,7 @@ npm run deploy
 - Properties API
 - Coupons API
 - Points API
+
+## License
+
+This project is licensed under the terms specified in the [LICENSE](LICENSE) file.

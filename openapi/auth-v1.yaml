@@ -6,9 +6,9 @@ info:
     Authentication and user management API for Loyalty Engine.
 
     Provides functionality for:
-      - User authentication and authorization
+      - User authentication
       - JWT access and refresh tokens generation
-      - OAuth2 Authentication (Google, Github coming soon)
+      - OAuth Authentication (Google, Github coming soon)
       - API keys generation and management
       - Active user management
 
@@ -52,11 +52,11 @@ paths:
         '200':
           $ref: '#/components/responses/LoginSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/register:
     post:
       summary: User registration
@@ -73,9 +73,9 @@ paths:
         '201':
           $ref: '#/components/responses/RegisterSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/refresh:
     post:
       summary: Refresh JWT token
@@ -88,11 +88,11 @@ paths:
         '200':
           $ref: '#/components/responses/RefreshSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/verify-token:
     get:
       tags:
@@ -105,11 +105,11 @@ paths:
         '200':
           $ref: '#/components/responses/SuccessResponse'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/logout:
     post:
       summary: User logout
@@ -124,11 +124,11 @@ paths:
         '200':
           $ref: '#/components/responses/LogoutSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/protected:
     get:
       summary: Protected route test
@@ -146,9 +146,9 @@ paths:
             text/plain:
               example: Protected route
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/users/me:
     get:
       summary: Get current user profile
@@ -161,13 +161,13 @@ paths:
         '200':
           $ref: '#/components/responses/GetUserSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
     patch:
       summary: Update current user profile
       tags:
@@ -187,13 +187,13 @@ paths:
         '200':
           $ref: '#/components/responses/UpdateUserSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
     delete:
       summary: Delete current user account
       tags:
@@ -207,13 +207,13 @@ paths:
         '200':
           $ref: '#/components/responses/DeleteUserSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/users/me/deactivate:
     post:
       summary: Deactivate current user account
@@ -228,13 +228,13 @@ paths:
         '200':
           $ref: '#/components/responses/DeactivateUserSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/users/me/reactivate:
     post:
       summary: Reactivate current user account
@@ -249,13 +249,13 @@ paths:
         '200':
           $ref: '#/components/responses/ReactivateUserSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/users/me/emails:
     post:
       summary: Add email to current user
@@ -274,13 +274,13 @@ paths:
         '201':
           $ref: '#/components/responses/AddEmailSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
     get:
       summary: List emails of current user
       tags:
@@ -292,13 +292,13 @@ paths:
         '200':
           $ref: '#/components/responses/ListEmailsSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/users/me/emails/{emailId}:
     delete:
       summary: Delete email from current user
@@ -320,13 +320,13 @@ paths:
         '200':
           $ref: '#/components/responses/DeleteEmailSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/users/me/emails/{emailId}/primary:
     patch:
       summary: Set email as primary
@@ -347,13 +347,13 @@ paths:
         '200':
           $ref: '#/components/responses/SetPrimaryEmailSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/properties/{propertyId}/api-keys:
     post:
       summary: Create API key for property
@@ -379,15 +379,15 @@ paths:
         '201':
           $ref: '#/components/responses/CreateApiKeySuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '403':
-          $ref: './shared/responses/Forbidden.yaml'
+          $ref: '#/components/responses/ForbiddenError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/properties/{propertyId}/api-keys/verify:
     post:
       summary: Verify API key
@@ -409,13 +409,13 @@ paths:
         '200':
           $ref: '#/components/responses/VerifyApiKeySuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/properties/{propertyId}/api-keys/deactivate:
     post:
       summary: Deactivate API key
@@ -437,13 +437,13 @@ paths:
         '200':
           $ref: '#/components/responses/DeactivateApiKeySuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '404':
-          $ref: './shared/responses/NotFound.yaml'
+          $ref: '#/components/responses/NotFoundError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/oauth/{provider}/login:
     get:
       summary: Initiate OAuth login
@@ -464,9 +464,9 @@ paths:
         '302':
           description: Redirect to provider's authorization page
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
   /auth/v1/oauth/{provider}/callback:
     get:
       summary: OAuth callback
@@ -500,11 +500,11 @@ paths:
         '200':
           $ref: '#/components/responses/OAuthLoginSuccess'
         '400':
-          $ref: './shared/responses/BadRequest.yaml'
+          $ref: '#/components/responses/BadRequestError'
         '401':
-          $ref: './shared/responses/Unauthorized.yaml'
+          $ref: '#/components/responses/AuthenticationError'
         '500':
-          $ref: './shared/responses/InternalServerError.yaml'
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     bearerAuth:
@@ -518,6 +518,55 @@ components:
       name: X-API-Key
       description: API key for property-level authentication
   responses:
+    # Error responses
+    BadRequestError:
+      description: Bad request error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DetailsErrorResponse"
+
+    NotFoundError:
+      description: Not found error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ConflictError:
+      description: Conflict error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    AuthenticationError:
+      description: Authentication error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    RateLimitError:
+      description: Too many requests error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ForbiddenError:
+      description: Forbidden error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
     SuccessResponse:
       description: Successful response
       content:
@@ -998,13 +1047,21 @@ components:
             description:
               type: string
               description: A human-readable description of the error
-            details:
-              type: array
-              items:
-                $ref: '#/components/schemas/ErrorDetail'
-
           required:
             - error
+  
+    DetailsErrorResponse:
+      allOf:
+        - $ref: "#/components/schemas/ErrorResponse"
+        - type: object
+          properties:
+            details:
+              type: array
+              description: List of error details.
+              default: []
+              items:
+                $ref: "#/components/schemas/ErrorDetail"
+
     ErrorDetail:
       type: object
       properties:

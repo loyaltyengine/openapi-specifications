@@ -1,5 +1,0 @@
-description: Unauthorized - Authentication required
-content:
-  application/json:
-    schema:
-      $ref: '../schemas/Response.yaml'

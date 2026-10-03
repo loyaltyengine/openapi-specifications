@@ -1,9 +1,0 @@
-description: Error response
-allOf:
-  - $ref: './Response.yaml'
-  - type: object
-    properties:
-      errors:
-        type: array
-        items:
-          $ref: './ErrorDetails.yaml'

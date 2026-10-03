@@ -1,52 +1,90 @@
 # OpenAPI Specifications
 
-Loyalty Engine REST API specifications.
+Loyalty Engine REST specifications: API documentation and client code generation.
+
+## Overview
+
+This project contains OpenAPI specifications for the Loyalty Engine API. It provides:
+
+- **Interactive API Documentation** - Powered by Scalar
+- **Client Code Generation** - Automated generation of Maven (Java) and Node.js client artifacts
+- **Cloudflare Workers Deployment** - Deployment to Cloudflare Workers
+- **Spec Validation** - Redocly linting for specification quality
 
 ## Tech Stack
 
 - **OpenAPI 3.1** - API specification standard
 - **Node.js** - Runtime environment
-- **Express** - Web server framework
-- **Scalar** - API documentation UI
+- **Cloudflare Workers** - Deployment platform
+- **Scalar** - Modern API documentation UI
 - **Redocly CLI** - OpenAPI bundling and linting
-- **dotenv** - Environment configuration
+- **OpenAPI Generator** - Client code generation for multiple languages
+- **Express** - Server framework
 
 ## Prerequisites
 
-- Node.js (v16 or higher)
+- Node.js
 - npm
+- Cloudflare account (for deployment)
+- Wrangler CLI (installed via devDependencies)
+
+## Project Structure
+
+```
+openapi-specifications/
+├── openapi/              # OpenAPI specification files
+│   ├── auth-v1.yaml      # Authentication and Users API
+│   ├── properties-v1.yaml # Properties API
+│   ├── coupons-v1.yaml   # Coupons API
+│   ├── points-v1.yaml    # Points API
+│   └── shared/           # Shared schemas and components
+├── packages/             # Client code artifacts
+│   ├── maven/            # Java/Maven artifacts
+│   └── node/             # Node.js artifacts
+├── dist/                 # Bundled OpenAPI specs (generated)
+├── index.js              # Cloudflare Workers entry point and Scalar configuration
+├── wrangler.jsonc        # Cloudflare Workers configuration
+└── redocly.yaml          # Redocly configuration
+```
 
 ## Getting Started
+
+### Local Development
 
 1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Create a `.env` file (optional):
+2. Bundle OpenAPI specs:
 ```bash
-PORT=3000
+npm run bundle
 ```
 
-3. Bundle OpenAPI specs and start server:
+3. Start the development server:
 ```bash
-npm start
+npm run dev
 ```
 
-4. Open your browser at `http://localhost:3000`
+4. Open your browser at `http://localhost:8787`
 
-## Development Commands
+### Cloudflare Workers Deployment
 
-| Command | Description |
-|---------|-------------|
-| `npm start` | Bundle specs and start the documentation server |
-| `npm run bundle` | Bundle OpenAPI specs with external references resolved to `dist/` folder |
-| `npm run lint:redocly` | Lint OpenAPI specifications for errors and best practices |
-| `npm run codegen:java -- dist/<spec-file>` | Generate Java client from bundled spec (output: `generated/java/`)<br>Example: `npm run codegen:java -- dist/coupons-v1.yaml` |
-| `npm run codegen:typescript -- dist/<spec-file>` | Generate TypeScript client from bundled spec (output: `generated/typescript/`)<br>Example: `npm run codegen:typescript -- dist/coupons-v1.yaml` |
+The application is configured to run on Cloudflare Workers:
 
-## API Documentation
+**Development:**
+```bash
+npm run dev
+```
 
-After starting the server, you can access:
-- Authentication API: `http://localhost:3000` (default)
-- Other APIs: Available in the **top left dropdown menu**
+**Production Deployment:**
+```bash
+npm run deploy
+```
+
+## Available APIs
+
+- Authentication and Users API
+- Properties API
+- Coupons API
+- Points API

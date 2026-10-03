@@ -5,3 +5,5 @@ generated/
 .vscode
 .idea
 target/
+packages/**/src/
+packages/**/*.tgz

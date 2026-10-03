@@ -7,9 +7,8 @@
   "type": "commonjs",
   "scripts": {
     "codegen": "npx openapi-generator-cli generate --skip-validate-spec -g typescript-fetch -o src -i ../../../../dist/auth-v1.yaml",
-    "build": "tsc",
-    "prepublishOnly": "npm run build",
-    "publish-types": "npm run codegen && npm run build"
+    "build": "npm run codegen && tsc",
+    "package": "npm run build && npm pack"
   },
   "files": [
     "dist"

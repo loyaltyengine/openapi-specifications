@@ -1,5 +1,5 @@
 {
-  "name": "@loyalty-engine/auth-client",
+  "name": "@loyaltyengine/auth-client",
   "version": "1.0.0",
   "description": "Client types for Loyalty Engine Auth Service",
   "main": "dist/index.js",

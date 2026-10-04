@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.loyaltyengine.coupons</groupId>
-    <artifactId>api-models</artifactId>
+    <artifactId>coupons-client</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
@@ -78,9 +78,9 @@
                                 <serializationLibrary>jackson</serializationLibrary>
                                 <openApiNullable>false</openApiNullable>
                                 <useJakartaEe>true</useJakartaEe>
-                                <modelPackage>org.loyaltyengine.coupons.v1.model</modelPackage>
-                                <apiPackage>org.loyaltyengine.coupons.v1.api</apiPackage>
-                                <invokerPackage>org.loyaltyengine.coupons.v1</invokerPackage>
+                                <modelPackage>org.loyaltyengine.coupons.client.models</modelPackage>
+                                <apiPackage>org.loyaltyengine.coupons.client.api</apiPackage>
+                                <invokerPackage>org.loyaltyengine.coupons.client</invokerPackage>
                                 <useBeanValidation>true</useBeanValidation>
                                 <performBeanValidation>false</performBeanValidation>
                             </configOptions>

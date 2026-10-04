@@ -1,0 +1,23 @@
+{
+  "name": "@loyalty-engine/auth-client",
+  "version": "1.0.0",
+  "description": "Client types for Loyalty Engine Auth Service",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "commonjs",
+  "scripts": {
+    "codegen": "npx openapi-generator-cli generate --skip-validate-spec -g typescript-fetch -o src -i ../../../../dist/auth-v1.yaml",
+    "build": "npm run codegen && tsc",
+    "package": "npm run build && npm pack"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.39.1",
+    "typescript": "^7.0.2"
+  }
+}
